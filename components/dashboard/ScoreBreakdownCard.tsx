@@ -6,6 +6,8 @@ import {
   CardFooter,
 } from "@/components/ui/card";
 
+import { Separator } from "@/components/ui/separator";
+
 import { Badge } from "@/components/ui/badge";
 import { Button } from "../ui/button";
 import {
@@ -54,7 +56,7 @@ function InfoBox({
 }) {
   return (
     <div
-      className="flex items-center gap-2 bg-muted/10 px-3 py-2 rounded-lg min-w-[110px]"
+      className="flex items-center gap-2 bg-muted/10 px-3 py-2 rounded-lg min-w-27.5"
       title={tooltip || label}
     >
       <span className="text-accent">{icon}</span>
@@ -73,6 +75,8 @@ function getScoreBreakdown(data: HourlyWeather) {
   const precipitation = data.precipitation;
   const precipitationProbability = data.precipitation_probability;
   const temp = data.apparent_temperature;
+  const sunshine = data.sunshine_duration ?? 0;
+  const radiation = data.shortwave_radiation ?? 0;
   // Einzelne Penalties
   // Die Penalty-Funktionen sind identisch zu calculateRideScore
   let windPenalty = 0;
@@ -111,6 +115,11 @@ function getScoreBreakdown(data: HourlyWeather) {
     else if (temp < 0 || temp > 35) temperaturePenalty = 45;
     else temperaturePenalty = 20;
   }
+  let sunPenalty = 0;
+  if (sunshine >= 45 && radiation >= 400) sunPenalty = 0;
+  else if (sunshine >= 30 && radiation >= 250) sunPenalty = 4;
+  else if (sunshine >= 15 && radiation >= 120) sunPenalty = 10;
+  else sunPenalty = 18;
   let combinationPenalty = 0;
   if (temp < 8 && wind > 20) combinationPenalty += 12;
   if (temp < 10 && precipitation > 0.2) combinationPenalty += 10;
@@ -123,6 +132,7 @@ function getScoreBreakdown(data: HourlyWeather) {
     precipitationPenalty,
     precipitationProbabilityPenalty,
     temperaturePenalty,
+    sunPenalty,
     combinationPenalty,
   };
 }
@@ -149,34 +159,63 @@ export default function ScoreBreakdownCard({ data, score }: DetailCardProps) {
   const breakdown = getScoreBreakdown(data);
 
   return (
-    <Card className="bg-background/80 shadow-xl p-0 border-accent/20">
-      <div className="flex md:flex-row flex-col justify-between items-start md:items-center gap-8 p-6">
-        {/* Score & Breakdown */}
-        <div className="flex flex-col items-end gap-2 min-w-45">
-          <span className="drop-shadow font-extrabold text-accent text-4xl">
-            Score: {score}
-          </span>
-          <span className="text-muted-foreground text-sm">
-            {getRideScoreLabel(score)}
-          </span>
-          <div className="bg-muted/20 mt-2 px-4 py-2 rounded-lg w-full">
-            <div className="mb-1 font-semibold text-muted-foreground text-xs">
-              Score Breakdown
-            </div>
-            <ul className="gap-x-4 gap-y-1 grid grid-cols-2 text-muted-foreground text-xs">
-              <li>Wind: -{breakdown.windPenalty}</li>
-              <li>Gusts: -{breakdown.gustPenalty}</li>
-              <li>Rain: -{breakdown.precipitationPenalty}</li>
-              <li>Rain prob.: -{breakdown.precipitationProbabilityPenalty}</li>
-              <li>Temp.: -{breakdown.temperaturePenalty}</li>
-              <li>Combo: -{breakdown.combinationPenalty}</li>
-            </ul>
-          </div>
-          <div className="mt-2 font-semibold text-accent text-sm text-right">
-            {getRecommendation(score)}
-          </div>
+    <Card className="bg-background/80 border-accent/20">
+      <CardHeader className="">
+        <CardTitle className="font-bold text-muted-foreground uppercase">
+          Score Breakdown
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div className="flex flex-col gap-2 w-full text-sm">
+          <dl className="flex justify-between items-center">
+            <dt>Wind</dt>
+            <dd className="text-muted-foreground">-{breakdown.windPenalty}</dd>
+          </dl>
+          <Separator />
+          <dl className="flex justify-between items-center">
+            <dt>Gusts</dt>
+            <dd className="text-muted-foreground">-{breakdown.gustPenalty}</dd>
+          </dl>
+          <Separator />
+          <dl className="flex justify-between items-center">
+            <dt>Rain</dt>
+            <dd className="text-muted-foreground">
+              -{breakdown.precipitationPenalty}
+            </dd>
+          </dl>
+          <Separator />
+          <dl className="flex justify-between items-center">
+            <dt>Rain prob.</dt>
+            <dd className="text-muted-foreground">
+              -{breakdown.precipitationProbabilityPenalty}
+            </dd>
+          </dl>
+          <Separator />
+          <dl className="flex justify-between items-center">
+            <dt>Temp</dt>
+            <dd className="text-muted-foreground">
+              -{breakdown.temperaturePenalty}
+            </dd>
+          </dl>
+          <Separator />
+          <dl className="flex justify-between items-center">
+            <dt>Sun</dt>
+            <dd className="text-muted-foreground">-{breakdown.sunPenalty}</dd>
+          </dl>
+          <Separator />
+          <dl className="flex justify-between items-center">
+            <dt>Combo</dt>
+            <dd className="text-muted-foreground">
+              -{breakdown.combinationPenalty}
+            </dd>
+          </dl>
+          <Separator className="bg-foreground" />
+          <dl className="flex justify-between items-center font-bold text-accent">
+            <dt>Score</dt>
+            <dd>{score}</dd>
+          </dl>
         </div>
-      </div>
+      </CardContent>
     </Card>
   );
 }

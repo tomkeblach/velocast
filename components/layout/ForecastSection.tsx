@@ -126,13 +126,13 @@ export default function ForecastSection() {
             })}
         </CardContent>
       </Card>
-      <div className="gap-4 grid xl:grid-cols-12 mt-6">
+      <div className="gap-4 grid md:grid-cols-12 mt-6">
         {selectedData && (
           <>
-            <div className="xl:col-span-8">
+            <div className="md:col-span-8">
               <DetailCard data={selectedData} />
             </div>
-            <div className="xl:col-span-4">
+            <div className="md:col-span-4">
               <ScoreBreakdownCard
                 data={selectedData}
                 score={calculateRideScore({

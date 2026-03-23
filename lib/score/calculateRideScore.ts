@@ -92,6 +92,15 @@ export function calculateRideScore(input: RideScoreInput): number {
   const temperaturePenalty = getTemperaturePenalty(input.apparentTemperature);
   const combinationPenalty = getCombinationPenalty(input);
 
+  // Sun penalty: kombiniere sunshineDuration und shortwaveRadiation
+  let sunPenalty = 0;
+  const sunshine = input.sunshineDuration ?? 0;
+  const radiation = input.shortwaveRadiation ?? 0;
+  if (sunshine >= 45 && radiation >= 400) sunPenalty = 0;
+  else if (sunshine >= 30 && radiation >= 250) sunPenalty = 4;
+  else if (sunshine >= 15 && radiation >= 120) sunPenalty = 10;
+  else sunPenalty = 18;
+
   const rawScore =
     100 -
     windPenalty -
@@ -99,6 +108,7 @@ export function calculateRideScore(input: RideScoreInput): number {
     precipitationPenalty -
     precipitationProbabilityPenalty -
     temperaturePenalty -
+    sunPenalty -
     combinationPenalty;
 
   return Math.max(0, Math.min(100, Math.round(rawScore)));

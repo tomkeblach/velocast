@@ -4,6 +4,8 @@ export interface RideScoreInput {
   precipitation: number;
   precipitationProbability: number;
   apparentTemperature: number;
+  sunshineDuration?: number;
+  shortwaveRadiation?: number;
 }
 
 export interface HourlyScore {

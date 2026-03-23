@@ -16,6 +16,8 @@ export async function fetchWeather(
       "wind_gusts_10m",
       "wind_direction_10m",
       "weather_code",
+      "sunshine_duration",
+      "shortwave_radiation",
     ].join(","),
     daily: ["sunrise", "sunset"].join(","),
     timezone: "auto",

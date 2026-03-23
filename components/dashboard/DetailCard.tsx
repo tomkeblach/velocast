@@ -127,7 +127,7 @@ export default function DetailCard({ data }: DetailCardProps) {
 
   return (
     <Card className="bg-background/80 shadow-xl p-0 border-accent/20">
-      <div className="flex md:flex-row flex-col justify-between items-start md:items-center gap-8 p-6">
+      <div className="flex flex-row justify-between items-start md:items-center gap-8 p-6">
         {/* Wetter-Icon & Temperatur */}
         <div className="flex flex-col items-center gap-2 min-w-30">
           <WeatherIcon className="drop-shadow size-14 text-accent" />

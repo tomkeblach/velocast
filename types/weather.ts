@@ -8,6 +8,8 @@ export interface WeatherHourlyData {
   wind_gusts_10m: number[];
   wind_direction_10m: number[];
   weather_code: number[];
+  sunshine_duration?: number[]; // in Minuten pro Stunde
+  shortwave_radiation?: number[]; // in W/m²
 }
 
 export interface WeatherDailyData {

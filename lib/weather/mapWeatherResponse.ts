@@ -10,6 +10,8 @@ export interface HourlyWeather {
   wind_gusts_10m: number;
   wind_direction_10m: number;
   weather_code: number;
+  sunshine_duration?: number; // in Minuten pro Stunde
+  shortwave_radiation?: number; // in W/m²
 }
 
 export function mapWeatherResponse(
@@ -26,5 +28,9 @@ export function mapWeatherResponse(
     wind_gusts_10m: h.wind_gusts_10m[i],
     wind_direction_10m: h.wind_direction_10m[i],
     weather_code: h.weather_code[i],
+    sunshine_duration: h.sunshine_duration ? h.sunshine_duration[i] : undefined,
+    shortwave_radiation: h.shortwave_radiation
+      ? h.shortwave_radiation[i]
+      : undefined,
   }));
 }
