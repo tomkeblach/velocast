@@ -3,7 +3,7 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Clock, Circle } from "lucide-react";
 import ForecastItem from "../dashboard/ForecastItem";
-import DetailCard from "../dashboard/DetailCard";
+import HourDetailCard from "../dashboard/HourDetailCard";
 import ScoreBreakdownCard from "../dashboard/ScoreBreakdownCard";
 import { fetchWeather } from "@/lib/weather/fetchWeather";
 import {
@@ -130,7 +130,7 @@ export default function ForecastSection() {
         {selectedData && (
           <>
             <div className="md:col-span-8">
-              <DetailCard data={selectedData} />
+              <HourDetailCard data={selectedData} />
             </div>
             <div className="md:col-span-4">
               <ScoreBreakdownCard

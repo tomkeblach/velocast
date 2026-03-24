@@ -113,11 +113,11 @@ function getWindDirectionAbbr(degree: number): string {
   return dirs[ix];
 }
 
-interface DetailCardProps {
+interface HourDetailCardProps {
   data: HourlyWeather;
 }
 
-export default function DetailCard({ data }: DetailCardProps) {
+export default function HourDetailCard({ data }: HourDetailCardProps) {
   if (!data) {
     return null;
   }

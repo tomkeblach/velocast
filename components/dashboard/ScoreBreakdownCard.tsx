@@ -146,12 +146,15 @@ function getRecommendation(score: number) {
   return "Not recommended.";
 }
 
-interface DetailCardProps {
+interface HourDetailCardProps {
   data: HourlyWeather;
   score: number;
 }
 
-export default function ScoreBreakdownCard({ data, score }: DetailCardProps) {
+export default function ScoreBreakdownCard({
+  data,
+  score,
+}: HourDetailCardProps) {
   if (!data) {
     return null;
   }
