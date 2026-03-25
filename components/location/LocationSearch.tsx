@@ -9,7 +9,14 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { Star, X, Search, LoaderCircle } from "lucide-react";
+import {
+  Star,
+  X,
+  Search,
+  LoaderCircle,
+  MapPin,
+  ChevronRight,
+} from "lucide-react";
 
 interface Location {
   place_id: string;
@@ -21,6 +28,7 @@ interface Location {
     town?: string;
     village?: string;
     country?: string;
+    state?: string;
   };
 }
 
@@ -38,6 +46,14 @@ export default function LocationSearch({
   const [recent, setRecent] = useState<Location[]>([]);
   const [favorites, setFavorites] = useState<Location[]>([]);
   const [gettingCurrentLocation, setGettingCurrentLocation] = useState(false);
+  const [isMac, setIsMac] = useState(false);
+
+  useEffect(() => {
+    setIsMac(
+      typeof navigator !== "undefined" &&
+        navigator.platform.indexOf("Mac") !== -1,
+    );
+  }, []);
 
   const handleCurrentLocation = () => {
     if (!navigator.geolocation) {
@@ -128,11 +144,19 @@ export default function LocationSearch({
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setOpen(false);
+      // Cmd+K (Mac) or Ctrl+K (Windows/Linux) to toggle
+      if ((e.metaKey || e.ctrlKey) && e.key === "k") {
+        e.preventDefault();
+        setOpen((prev) => !prev);
+        return;
+      }
+      // Escape to close
+      if (e.key === "Escape" && open) {
+        setOpen(false);
+      }
     };
-    if (open) {
-      window.addEventListener("keydown", handleKeyDown);
-    }
+
+    window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [open]);
 
@@ -192,10 +216,17 @@ export default function LocationSearch({
   const renderSearchItem = (location: Location) => (
     <li
       key={location.place_id}
-      className="group flex justify-between items-center bg-secondary hover:bg-sidebar-primary mx-6 mt-2 first:mt-0 px-4 py-3 rounded-lg text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+      className="group flex justify-left items-center bg-secondary hover:bg-sidebar-primary mx-6 mt-2 first:mt-0 px-4 py-3 rounded-lg text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
       onClick={() => handleSelectLocation(location)}
     >
-      <span>{getCityName(location)}</span>
+      <MapPin className="mr-4 p-1.5 border rounded-md size-7" />
+      <div className="flex flex-col">
+        <span className="mb-1 font-semibold text-xs">
+          {location.address?.state || location.address?.country || ""}
+        </span>
+        <span>{getCityName(location)}</span>
+      </div>
+      <ChevronRight className="ml-auto w-4 h-4" />
     </li>
   );
 
@@ -249,6 +280,12 @@ export default function LocationSearch({
         <Button variant="outline" onClick={() => setOpen(true)}>
           <Search className="mr-2 w-4 h-4" />
           Search location
+          <kbd className="hidden in-[.os-ios]:block in-[.os-macos]:block font-sans text-muted-foreground text-sm/4">
+            ⌘K
+          </kbd>
+          <kbd className="hidden in-[.os-android]:block in-[.os-other]:block in-[.os-windows]:block font-sans text-muted-foreground text-sm/4">
+            Ctrl+K
+          </kbd>
         </Button>
       </DialogTrigger>
       <DialogContent
@@ -269,7 +306,10 @@ export default function LocationSearch({
               value={query}
               onChange={(e) => setQuery(e.target.value)}
             />
-            <kbd className="inline-flex items-center gap-1 bg-muted px-1.5 border rounded h-5 font-mono font-medium text-[10px] text-muted-foreground pointer-events-none select-none">
+            <kbd
+              onClick={() => setOpen(false)}
+              className="inline-flex items-center gap-1 bg-muted hover:bg-muted/80 px-1.5 border rounded h-5 font-mono font-medium text-[10px] text-muted-foreground cursor-pointer select-none"
+            >
               esc
             </kbd>
           </div>

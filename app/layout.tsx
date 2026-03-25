@@ -3,7 +3,7 @@ import { Geist, Geist_Mono, Inter } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
 
-const inter = Inter({subsets:['latin'],variable:'--font-sans'});
+const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -26,7 +26,35 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={cn("font-sans", inter.variable)}>
+    <html
+      lang="en"
+      className={cn("font-sans", inter.variable)}
+      suppressHydrationWarning
+    >
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                const ua = navigator.userAgent.toLowerCase();
+                const platform = navigator.platform.toLowerCase();
+                const html = document.documentElement;
+                if (platform.includes('mac') || ua.includes('mac')) {
+                  html.classList.add('os-macos');
+                } else if (platform.includes('win') || ua.includes('win')) {
+                  html.classList.add('os-windows');
+                } else if (ua.includes('android')) {
+                  html.classList.add('os-android');
+                } else if (ua.includes('iphone') || ua.includes('ipad') || ua.includes('ipod')) {
+                  html.classList.add('os-ios');
+                } else {
+                  html.classList.add('os-other');
+                }
+              })();
+            `,
+          }}
+        />
+      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased dark`}
       >
