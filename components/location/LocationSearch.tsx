@@ -236,7 +236,10 @@ export default function LocationSearch({
       className="group flex justify-between items-center bg-popover hover:bg-secondary mx-0 mt-0 px-6 py-4 first:border-t border-b rounded-none text-muted-foreground transition-colors cursor-pointer"
       onClick={() => handleSelectLocation(location)}
     >
-      <span>{getCityName(location)}</span>
+      <span>
+        {getCityName(location)},{" "}
+        {location.address?.state || location.address?.country || ""}
+      </span>
       <div className="flex items-center gap-2">
         <button onClick={(e) => toggleFavorite(location, e)}>
           <Star
@@ -260,7 +263,11 @@ export default function LocationSearch({
       className="group flex justify-between items-center bg-secondary hover:bg-primary/50 mx-0 mt-0 px-6 py-4 first:border-t border-b rounded-none text-muted-foreground transition-colors cursor-pointer"
       onClick={() => handleSelectLocation(location)}
     >
-      <span>{getCityName(location)}</span>
+      <span>
+        {" "}
+        {getCityName(location)},{" "}
+        {location.address?.state || location.address?.country || ""}
+      </span>
       <div className="flex items-center gap-2">
         <button onClick={(e) => toggleFavorite(location, e)}>
           <Star className={`w-4 h-4 fill-primary text-primary`} />
