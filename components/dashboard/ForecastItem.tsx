@@ -105,8 +105,8 @@ export default function ForecastItem({
       className={`flex flex-col items-center space-y-2 rounded-lg transition border-2 cursor-pointer p-3 select-none
         ${
           active
-            ? "border-accent bg-accent/10 shadow-lg"
-            : "border-transparent hover:border-accent/60 hover:bg-accent/5 hover:shadow"
+            ? "border- bg-primary/10 shadow-lg"
+            : "border-transparent hover:border-/60 hover:bg-primary/5 hover:shadow"
         }
       `}
     >
@@ -121,14 +121,14 @@ export default function ForecastItem({
         {Math.round(data.temperature_2m)} °C
       </span>
       <div className="flex items-center gap-1">
-        <Wind className="size-3 text-accent" />
-        <div className="font-medium text-muted-foreground text-sm">
+        <Wind className="size-3 text-primary" />
+        <div className="font-medium text-muted-foreground text-sm whitespace-nowrap">
           {Math.round(data.wind_speed_10m)} km/h
         </div>
       </div>
       <div className="flex items-center gap-1">
         <Droplets className="size-3" />
-        <div className="font-medium text-sm">
+        <div className="font-medium text-sm whitespace-nowrap">
           {Math.round(data.precipitation_probability)} %
         </div>
       </div>

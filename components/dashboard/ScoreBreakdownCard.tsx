@@ -59,7 +59,7 @@ function InfoBox({
       className="flex items-center gap-2 bg-muted/10 px-3 py-2 rounded-lg min-w-27.5"
       title={tooltip || label}
     >
-      <span className="text-accent">{icon}</span>
+      <span className="text-primary">{icon}</span>
       <div className="flex flex-col">
         <span className="text-muted-foreground text-xs">{label}</span>
         <span className="font-bold text-base">{value}</span>
@@ -162,7 +162,7 @@ export default function ScoreBreakdownCard({
   const breakdown = getScoreBreakdown(data);
 
   return (
-    <Card className="bg-background/80 border-accent/20">
+    <Card className="bg-background/80 border-/20">
       <CardHeader className="">
         <CardTitle className="font-bold text-muted-foreground uppercase">
           Score Breakdown
@@ -213,7 +213,7 @@ export default function ScoreBreakdownCard({
             </dd>
           </dl>
           <Separator className="bg-foreground" />
-          <dl className="flex justify-between items-center font-bold text-accent">
+          <dl className="flex justify-between items-center font-bold text-primary">
             <dt>Score</dt>
             <dd>{score}</dd>
           </dl>

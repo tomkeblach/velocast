@@ -36,16 +36,16 @@ export default function PrimeRideCard({
       <div className="flex p-6">
         <div className="flex flex-col justify-center items-center gap-2">
           {loading ? (
-            <div className="text-shadow-score font-black text-accent text-9xl">
+            <div className="text-shadow-score font-black text-primary text-9xl">
               --
             </div>
           ) : (
-            <div className="text-shadow-score font-black text-accent text-9xl">
+            <div className="text-shadow-score font-black text-primary text-9xl">
               {score}
             </div>
           )}
           <Badge
-            className="py-3 border-accent w-full font-bold text-accent text-xs uppercase"
+            className="py-3 border- w-full font-bold text-primary text-xs uppercase"
             variant="outline"
           >
             {loading ? "Loading..." : label}
@@ -74,15 +74,15 @@ export default function PrimeRideCard({
           )}
         </CardContent>
         <CardFooter>
-          <Alert className="flex items-center bg-accent/10 border-accent/20">
-            <Button className="hover:bg-accent mr-2 size-12">
+          <Alert className="flex items-center bg-primary/10 border-/20">
+            <Button className="hover:bg-primary mr-2 size-12">
               <Clock className="size-6 text-card" />
             </Button>
             <div className="">
-              <AlertTitle className="font-bold text-accent text-sm">
+              <AlertTitle className="font-bold text-primary text-sm">
                 Best Ride Window
               </AlertTitle>
-              <AlertDescription className="font-bold text-white text-xl">
+              <AlertDescription className="font-bold text-foreground text-xl">
                 {start} — {end}
               </AlertDescription>
             </div>

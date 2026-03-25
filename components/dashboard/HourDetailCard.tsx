@@ -1,10 +1,4 @@
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardContent,
-  CardFooter,
-} from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 
 import {
   Wind,
@@ -71,7 +65,7 @@ function InfoBox({
       className="flex items-center gap-2 bg-muted/10 px-3 py-2 rounded-lg min-w-27.5"
       title={tooltip || label}
     >
-      <span className="text-accent">{icon}</span>
+      <span className="text-primary">{icon}</span>
       <div className="flex flex-col">
         <span className="text-muted-foreground text-xs">{label}</span>
         <span className="font-bold text-base">{value}</span>
@@ -126,18 +120,18 @@ export default function HourDetailCard({ data }: HourDetailCardProps) {
   const WeatherIcon = getWeatherIcon(data.weather_code);
 
   return (
-    <Card className="bg-background/80 shadow-xl p-0 border-accent/20">
+    <Card className="bg-background/80 shadow-xl p-0 border-/20">
       <div className="flex flex-row justify-between items-start md:items-center gap-8 p-6">
         {/* Wetter-Icon & Temperatur */}
         <div className="flex flex-col items-center gap-2 min-w-30">
-          <WeatherIcon className="drop-shadow size-14 text-accent" />
+          <WeatherIcon className="drop-shadow size-14 text-primary" />
           <div className="font-bold text-3xl">
             {Math.round(data.temperature_2m)}°C
           </div>
           <div className="text-muted-foreground text-sm">
             Feels like: {Math.round(data.apparent_temperature)}°C
           </div>
-          <div className="font-semibold text-accent">
+          <div className="font-semibold text-primary">
             {weatherDescription(data.weather_code)}
           </div>
         </div>

@@ -18,7 +18,15 @@ import { filterDaylightHours } from "@/lib/utils/filterDaylightHours";
 import { useEffect, useState } from "react";
 import { BestRideWindow } from "@/types/score";
 
-export default function HeroSection() {
+interface HeroSectionProps {
+  selectedLocation: {
+    lat: number;
+    lon: number;
+    location: string;
+  } | null;
+}
+
+export default function HeroSection({ selectedLocation }: HeroSectionProps) {
   const [bestWindow, setBestWindow] = useState<BestRideWindow | null>(null);
   const [stats, setStats] = useState({
     avgTemp: 0,
@@ -32,7 +40,10 @@ export default function HeroSection() {
     async function load() {
       try {
         setLoading(true);
-        const apiResponse = await fetchWeather(49.3628, 8.2581);
+        const apiResponse = await fetchWeather(
+          selectedLocation ? selectedLocation.lat : 49.3628,
+          selectedLocation ? selectedLocation.lon : 8.2581,
+        );
         const hourly = mapWeatherResponse(apiResponse);
 
         // Sonnenauf- und untergang holen
@@ -98,7 +109,7 @@ export default function HeroSection() {
       }
     }
     load();
-  }, []);
+  }, [selectedLocation]);
 
   return (
     <section className="gap-4 grid xl:grid-cols-12">

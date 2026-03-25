@@ -14,7 +14,17 @@ import { calculateRideScore } from "@/lib/score/calculateRideScore";
 import { filterDaylightHours } from "@/lib/utils/filterDaylightHours";
 import { useEffect, useState } from "react";
 
-export default function ForecastSection() {
+interface ForecastSectionProps {
+  selectedLocation: {
+    lat: number;
+    lon: number;
+    location: string;
+  } | null;
+}
+
+export default function ForecastSection({
+  selectedLocation,
+}: ForecastSectionProps) {
   const [hourly, setHourly] = useState<HourlyWeather[] | null>(null);
   const [displayTitle, setDisplayTitle] = useState("Today's Ride Forecast");
   const [loading, setLoading] = useState(true);
@@ -26,7 +36,10 @@ export default function ForecastSection() {
       try {
         setLoading(true);
         setError(null);
-        const apiResponse = await fetchWeather(49.3628, 8.2581);
+        const apiResponse = await fetchWeather(
+          selectedLocation ? Number(selectedLocation.lat) : 49.3628,
+          selectedLocation ? Number(selectedLocation.lon) : 8.2581,
+        );
         const allHourly = mapWeatherResponse(apiResponse);
 
         // Sonnenauf- und untergang holen
@@ -57,7 +70,7 @@ export default function ForecastSection() {
       }
     }
     load();
-  }, []);
+  }, [selectedLocation?.lat, selectedLocation?.lon]);
 
   const selectedData =
     hourly && selected ? hourly.find((h) => h.time === selected) : null;
@@ -66,7 +79,7 @@ export default function ForecastSection() {
     <section className="">
       <div className="flex justify-between items-center mb-4">
         <div className="flex items-center gap-2">
-          <Clock className="size-5 text-accent" />
+          <Clock className="size-5 text-primary" />
           <h2 className="font-bold text-foreground text-xl">{displayTitle}</h2>
         </div>
         <div className="flex gap-4">
@@ -97,7 +110,7 @@ export default function ForecastSection() {
         </div>
       </div>
       <Card className="py-3 h-full">
-        <CardContent className="flex justify-start gap-4 px-3">
+        <CardContent className="flex justify-start gap-4 px-3 overflow-x-auto no-scrollbar">
           {loading && <span>Lade Wetterdaten…</span>}
           {error && <span className="text-red-500">{error}</span>}
           {hourly &&

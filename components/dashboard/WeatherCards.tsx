@@ -12,7 +12,7 @@ export function TemperatureCard({ value, loading }: WeatherCardProps) {
       <CardHeader>
         <CardTitle className="flex justify-between items-center font-bold text-muted-foreground text-xs uppercase">
           Avg. Temperature
-          <Thermometer className="size-4 text-accent" />
+          <Thermometer className="size-4 text-primary" />
         </CardTitle>
       </CardHeader>
       <CardContent>
@@ -29,7 +29,7 @@ export function WindCard({ value, loading }: WeatherCardProps) {
       <CardHeader>
         <CardTitle className="flex justify-between items-center font-bold text-muted-foreground text-xs uppercase">
           Avg. Wind
-          <Wind className="size-4 text-accent" />
+          <Wind className="size-4 text-primary" />
         </CardTitle>
       </CardHeader>
       <CardContent>
@@ -46,7 +46,7 @@ export function GustCard({ value, loading }: WeatherCardProps) {
       <CardHeader>
         <CardTitle className="flex justify-between items-center font-bold text-muted-foreground text-xs uppercase">
           Max Gusts
-          <WindArrowDown className="size-4 text-accent" />
+          <WindArrowDown className="size-4 text-primary" />
         </CardTitle>
       </CardHeader>
       <CardContent>
@@ -63,7 +63,7 @@ export function RainCard({ value, loading }: WeatherCardProps) {
       <CardHeader>
         <CardTitle className="flex justify-between items-center font-bold text-muted-foreground text-xs uppercase">
           Max Rain Risk
-          <Droplets className="size-4 text-accent" />
+          <Droplets className="size-4 text-primary" />
         </CardTitle>
       </CardHeader>
       <CardContent>
