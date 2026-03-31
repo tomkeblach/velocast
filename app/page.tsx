@@ -163,7 +163,7 @@ export default function Home() {
           onLocationSelect={handleLocationSelect}
           selectedLocation={selectedLocation}
         />
-        <div className="flex flex-col gap-3">
+        <div className="flex md:flex-row flex-col flex-wrap sm:justify-between gap-3">
           <div className="flex gap-1.5 pb-0.5 overflow-x-auto no-scrollbar">
             {Array.from({ length: 7 }, (_, i) => {
               const d = new Date();
@@ -217,7 +217,7 @@ export default function Home() {
               min={1}
               max={8}
               step={0.5}
-              className="flex-1 sm:flex-none sm:w-40"
+              className="flex-1 md:flex-none md:w-40"
             />
             <span className="w-8 font-bold text-primary text-sm text-right whitespace-nowrap">
               {rideDuration}h
