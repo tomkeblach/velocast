@@ -19,6 +19,15 @@ import {
 
 import { HourlyWeather } from "@/lib/weather/mapWeatherResponse";
 
+/**
+ * Maps a WMO weather interpretation code to the most appropriate Lucide icon component.
+ *
+ * Codes follow WMO Table 4677. Only the ranges used by Open-Meteo are mapped;
+ * anything outside falls back to `Cloud`.
+ *
+ * @param code  WMO weather code
+ * @returns  Lucide icon component
+ */
 function getWeatherIcon(code: number) {
   if (code === 0) return Sun;
   if (code <= 2) return CloudSun;
@@ -33,6 +42,7 @@ function getWeatherIcon(code: number) {
   return Cloud;
 }
 
+/** Maps a WMO weather code to a short human-readable description. */
 function weatherDescription(code: number) {
   // Open-Meteo Codes (simplified version)
   if (code === 0) return "Clear sky";
@@ -83,7 +93,10 @@ function getRecommendation(score: number) {
   return "Not recommended.";
 }
 
-// Wandelt Grad in Windrichtungs-Abkürzung (z.B. N, NO, ONO, O, SO, S, SW, W, NW)
+/**
+ * Converts a wind direction in degrees to a 16-point compass abbreviation
+ * (e.g. 315° → "NW"). Uses rounding to the nearest 22.5° sector.
+ */
 function getWindDirectionAbbr(degree: number): string {
   const dirs = [
     "N",
@@ -108,9 +121,17 @@ function getWindDirectionAbbr(degree: number): string {
 }
 
 interface HourDetailCardProps {
+  /** Full weather data for the hour the user has selected in the forecast strip. */
   data: HourlyWeather;
 }
 
+/**
+ * Detailed weather panel for a single selected hour.
+ *
+ * Displays the weather icon, air temperature (large), apparent temperature,
+ * wind speed + direction, gusts, precipitation, and precipitation probability
+ * as labelled info-boxes. Adapts to a stacked layout on mobile.
+ */
 export default function HourDetailCard({ data }: HourDetailCardProps) {
   if (!data) {
     return null;
@@ -122,7 +143,7 @@ export default function HourDetailCard({ data }: HourDetailCardProps) {
   return (
     <Card className="bg-background/80 shadow-xl p-0 border-/20">
       <div className="flex sm:flex-row flex-col sm:justify-between sm:items-center gap-4 sm:gap-8 p-5 sm:p-6">
-        {/* Wetter-Icon & Temperatur */}
+        {/* Weather icon & temperature */}
         <div className="flex sm:flex-col items-center sm:items-center gap-4 sm:gap-2 sm:min-w-30">
           <WeatherIcon className="drop-shadow size-12 sm:size-14 text-primary shrink-0" />
           <div>

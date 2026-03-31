@@ -3,7 +3,9 @@ import { Navigation, MapPin } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
 interface TopbarProps {
+  /** Callback fired when the user selects a location from the search dropdown. */
   onLocationSelect?: (lat: number, lon: number, location: any) => void;
+  /** Currently active location. `null` shows a placeholder message. */
   selectedLocation?: {
     lat: number;
     lon: number;
@@ -11,6 +13,16 @@ interface TopbarProps {
   } | null;
 }
 
+/**
+ * App-wide top navigation bar.
+ *
+ * **Layout:**
+ * - Mobile: logo + search button on the same row; location badge below.
+ * - Desktop (sm+): logo, search field, and location badge in a single row.
+ *
+ * The location badge truncates long city names at `max-w-50` on mobile and
+ * expands on larger screens (`sm:max-w-none`) to avoid layout overflow.
+ */
 export default function Topbar({
   onLocationSelect,
   selectedLocation,

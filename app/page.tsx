@@ -103,12 +103,12 @@ export default function Home() {
               await loadTimezoneBasedLocation();
             },
             async () => {
-              // Geolocation abgelehnt - Fallback zur Zeitzone
+              // Geolocation denied — fall back to timezone-based location
               await loadTimezoneBasedLocation();
             },
           );
         } else {
-          // Keine Geolocation verfügbar - Fallback zur Zeitzone
+          // Geolocation not available — fall back to timezone-based location
           await loadTimezoneBasedLocation();
         }
       } catch (error) {

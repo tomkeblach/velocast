@@ -14,8 +14,21 @@ import {
 import { getRideScoreLabel } from "@/lib/score/calculateRideScore";
 import { HourlyWeather } from "@/lib/weather/mapWeatherResponse";
 
+/**
+ * Computes per-category penalty values for a single hour.
+ *
+ * The thresholds here intentionally mirror those in `calculateRideScore` so
+ * that the breakdown sums to exactly (100 − rideScore). Keeping them in sync
+ * manually is a deliberate trade-off: the score lib stays free of
+ * presentation concerns, while this component avoids importing private
+ * penalty helpers.
+ *
+ * @param data  Hourly weather object for the selected hour
+ * @returns  Object with one penalty value per category
+ */
 function getScoreBreakdown(data: HourlyWeather) {
-  // Diese Werte müssen mit der Formel in calculateRideScore übereinstimmen
+  // These values must stay in sync with the penalty functions in calculateRideScore
+  // so that the breakdown reflects the exact score.
   const wind = data.wind_speed_10m;
   const gusts = data.wind_gusts_10m;
   const precipitation = data.precipitation;
@@ -23,8 +36,7 @@ function getScoreBreakdown(data: HourlyWeather) {
   const temp = data.apparent_temperature;
   const sunshine = data.sunshine_duration ?? 0;
   const radiation = data.shortwave_radiation ?? 0;
-  // Einzelne Penalties
-  // Die Penalty-Funktionen sind identisch zu calculateRideScore
+  // Individual penalty values — thresholds mirror calculateRideScore exactly
   let windPenalty = 0;
   if (wind > 12)
     windPenalty =
@@ -83,6 +95,10 @@ function getScoreBreakdown(data: HourlyWeather) {
   };
 }
 
+/**
+ * Maps a numeric score to a short, plain-language recommendation string.
+ * Used below the penalty breakdown to give the rider a human summary.
+ */
 function getRecommendation(score: number) {
   if (score >= 85) return "Perfect conditions!";
   if (score >= 70) return "Very good, only minor limitations.";
@@ -92,7 +108,11 @@ function getRecommendation(score: number) {
   return "Not recommended.";
 }
 
-// Max possible penalty per category (for bar width)
+/**
+ * Maximum possible penalty for each scoring category.
+ * Used to compute the relative width (%) of each progress bar so that a
+ * maximum-penalty row fills the bar completely.
+ */
 const MAX_PENALTIES: Record<string, number> = {
   wind: 35,
   gusts: 20,

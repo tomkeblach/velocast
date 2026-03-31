@@ -102,7 +102,7 @@ export default function LocationSearch({
       )
         .then((res) => res.json())
         .then((data) => {
-          // Nur konkrete Orte erlauben (Städte, Dörfer, etc.)
+          // Only allow concrete places (cities, towns, villages, etc.)
           const filtered = data.filter((item: any) => {
             const validTypes = [
               "city",
@@ -114,12 +114,12 @@ export default function LocationSearch({
               "locality",
             ];
 
-            // Nur Items mit gültigen Ortstypen durchlassen
+            // Accept items with a recognised place type
             if (validTypes.includes(item.addresstype)) {
               return true;
             }
 
-            // Administrative Grenzen und Regionen ausschließen
+            // Exclude administrative boundaries and large regions
             if (
               item.class === "boundary" ||
               item.type === "administrative" ||

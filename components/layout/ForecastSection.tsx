@@ -21,6 +21,13 @@ import { useEffect, useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useDelayedLoading } from "@/lib/hooks/useDelayedLoading";
 
+/**
+ * Formats the section heading based on the selected day index.
+ *
+ * @param dayIndex  0-based day offset from today
+ * @returns  E.g. "Today's Ride Forecast", "Tomorrow's Ride Forecast",
+ *           or "Wednesday's Ride Forecast" for days further out
+ */
 function getDayTitle(dayIndex: number): string {
   if (dayIndex === 0) return "Today's Ride Forecast";
   if (dayIndex === 1) return "Tomorrow's Ride Forecast";
@@ -30,16 +37,38 @@ function getDayTitle(dayIndex: number): string {
 }
 
 interface ForecastSectionProps {
+  /** Location to fetch weather for. `null` shows the empty/skeleton state. */
   selectedLocation: {
     lat: number;
     lon: number;
     location: string;
   } | null;
+  /** Ride duration in hours, used to compute the best ride window. */
   rideDuration: number;
+  /**
+   * Explicitly selected day index (0 = today – 6 = 6 days out).
+   * `null` triggers auto-detection (today or tomorrow).
+   */
   dayIndex: number | null;
+  /** Called once after auto-detection resolves which day to use. */
   onDayDetected?: (i: number) => void;
 }
 
+/**
+ * Scrollable hourly forecast strip with an expandable detail panel.
+ *
+ * **Key behaviours:**
+ * - Shows a staggered animated list of `ForecastItem` hour slots.
+ * - Clicking a slot opens an `AnimatePresence`-animated detail panel
+ *   containing `HourDetailCard` and `ScoreBreakdownCard`.
+ * - The `stableSelectedData` ref pattern prevents the detail panel from
+ *   collapsing during re-fetches: stale data is kept visible until fresh
+ *   data arrives, avoiding a jarring collapse-then-expand animation.
+ * - `hourly` is rendered even while `loading === true` so the list stays
+ *   visible during re-fetches (only the first load shows skeletons).
+ * - `showSkeleton` uses `useDelayedLoading` with a 300 ms delay to avoid
+ *   flash-of-skeleton on fast re-computations (e.g. duration slider changes).
+ */
 export default function ForecastSection({
   selectedLocation,
   rideDuration,
@@ -64,11 +93,11 @@ export default function ForecastSection({
         );
         const allHourly = mapWeatherResponse(apiResponse);
 
-        // Sonnenauf- und untergang holen
+        // Extract sunrise/sunset arrays for the 7-day period
         const sunrises = apiResponse.daily.sunrise;
         const sunsets = apiResponse.daily.sunset;
 
-        // Nur Tagesstunden (Sonnenaufgang bis Sonnenuntergang) und zukünftige Stunden
+        // Filter to daylight hours only (sunrise – sunset), excluding past hours for today
         let filteredHours: HourlyWeather[];
         if (dayIndex === null) {
           const { hours, daylightInfo } = filterDaylightHours(
@@ -112,7 +141,7 @@ export default function ForecastSection({
           bestWindow ? bestWindow.start : (filteredHours[0]?.time ?? null),
         );
       } catch (e) {
-        setError("Fehler beim Laden der Wetterdaten");
+        setError("Failed to load weather data");
       } finally {
         setLoading(false);
       }

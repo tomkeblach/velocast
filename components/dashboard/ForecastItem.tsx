@@ -16,56 +16,68 @@ import { Badge } from "@/components/ui/badge";
 import { HourlyWeather } from "@/lib/weather/mapWeatherResponse";
 
 interface ForecastItemProps {
+  /** Weather data for this hour. */
   data: HourlyWeather;
+  /** Pre-computed ride score (0–100). When undefined the badge uses a neutral amber color. */
   score?: number;
+  /** When true, applies the active/selected ring style. */
   active?: boolean;
 }
 
 function formatHour(time: string) {
-  // time: '2026-03-17T12:00'
+  // Open-Meteo time format: "YYYY-MM-DDTHH:MM" — extract the HH:MM part
   return time.split("T")[1];
 }
 
-// Hilfsfunktion: weather_code überschreiben basierend auf Regenwahrscheinlichkeit und Niederschlag
+/**
+ * Returns an adjusted WMO weather code for display purposes.
+ *
+ * The Open-Meteo `weather_code` sometimes shows rain codes even when the
+ * precipitation probability is low (e.g. the model averaged rain over a
+ * wide area). This function overrides "rain-like" codes with a cloudy code
+ * (3) when the actual probability is below 30 %, giving a more realistic
+ * icon to the user.
+ *
+ * When probability is ≥ 30 % the actual precipitation amount is used to
+ * normalise the code to one of: light drizzle (51), light rain (61),
+ * moderate rain (63), or heavy rain (65).
+ *
+ * @param data  Hourly weather object for the hour to display
+ * @returns  Adjusted WMO weather code
+ */
 function getAdjustedWeatherCode(data: HourlyWeather): number {
   const rainCodes = [
     51, 53, 55, 56, 57, 61, 63, 65, 66, 67, 80, 81, 82, 95, 96, 99,
   ];
 
-  // 1. Erst Regenwahrscheinlichkeit prüfen
+  // 1. Check precipitation probability first
   if (data.precipitation_probability < 30) {
-    // Keine Regenwahrscheinlichkeit → kein Regen
-    // Falls original weather_code Regen anzeigt, überschreiben auf bewölkt
+    // Probability below threshold — if the raw code shows rain, override with cloudy
     if (rainCodes.includes(data.weather_code)) {
-      return 3; // bewölkt
+      return 3; // overcast
     }
-    return data.weather_code; // Original beibehalten
+    return data.weather_code; // keep original
   }
 
-  // 2. Regenwahrscheinlichkeit >= 30% → Jetzt auf Niederschlagsmenge schauen
-  // Nieselregen: < 0.5 mm
+  // 2. Probability ≥ 30 % — now bucket by actual precipitation amount
+  // Light drizzle: < 0.5 mm
   if (data.precipitation < 0.5) {
-    return 51; // Nieselregen (leicht)
+    return 51;
   }
-  // Leichter Regen: 0.5-2.5 mm
+  // Light rain: 0.5–2.5 mm
   if (data.precipitation < 2.5) {
-    return 61; // Regen (leicht)
+    return 61;
   }
-  // Mäßiger Regen: 2.5-7.5 mm
+  // Moderate rain: 2.5–7.5 mm
   if (data.precipitation < 7.5) {
-    return 63; // Regen (mäßig)
+    return 63;
   }
-  // Starker Regen: > 7.5 mm
-  return 65; // Regen (stark)
+  // Heavy rain: > 7.5 mm
+  return 65;
 }
 
+/** Maps a WMO weather code to a Lucide icon component for this forecast slot. */
 function getWeatherIcon(code: number) {
-  if (code === 0) return Sun;
-  if (code <= 2) return CloudSun;
-  if (code === 3) return Cloud;
-
-  if (code === 45 || code === 48) return CloudFog;
-
   if (code >= 51 && code <= 57) return CloudDrizzle;
 
   if (code >= 61 && code <= 67) return CloudRain;
@@ -81,6 +93,7 @@ function getWeatherIcon(code: number) {
   return Cloud;
 }
 
+/** Maps a ride score to a Tailwind background color class for the score badge. */
 function getScoreBadgeColor(score: number): string {
   if (score >= 85) return "bg-green-500";
   if (score >= 70) return "bg-green-400";
@@ -90,6 +103,14 @@ function getScoreBadgeColor(score: number): string {
   return "bg-red-500";
 }
 
+/**
+ * Compact hourly slot used in the horizontal forecast strip.
+ *
+ * Shows the hour, weather icon (adjusted for realistic rain thresholds),
+ * air temperature, precipitation probability, and a colour-coded ride score
+ * badge. Clicking the slot selects it in `ForecastSection`, triggering the
+ * detail panel below.
+ */
 export default function ForecastItem({
   data,
   score,

@@ -4,10 +4,16 @@ import { AnimatedNumber } from "@/components/ui/animated-number";
 import { Thermometer, Wind, WindArrowDown, Droplets } from "lucide-react";
 
 interface WeatherCardProps {
+  /** Numeric metric value to display, animated with a spring counter. */
   value: number;
+  /** When `true`, renders a skeleton placeholder instead of the value. */
   loading?: boolean;
 }
 
+/**
+ * Displays the average apparent temperature over the best ride window.
+ * Uses `AnimatedNumber` for a spring count-up on value change.
+ */
 export function TemperatureCard({ value, loading }: WeatherCardProps) {
   return (
     <Card className="h-full">
@@ -31,6 +37,7 @@ export function TemperatureCard({ value, loading }: WeatherCardProps) {
   );
 }
 
+/** Displays the average wind speed (km/h) over the best ride window. */
 export function WindCard({ value, loading }: WeatherCardProps) {
   return (
     <Card className="h-full">
@@ -54,6 +61,7 @@ export function WindCard({ value, loading }: WeatherCardProps) {
   );
 }
 
+/** Displays the maximum wind gust speed (km/h) recorded in the best ride window. */
 export function GustCard({ value, loading }: WeatherCardProps) {
   return (
     <Card className="h-full">
@@ -77,6 +85,7 @@ export function GustCard({ value, loading }: WeatherCardProps) {
   );
 }
 
+/** Displays the maximum precipitation probability (%) across the best ride window. */
 export function RainCard({ value, loading }: WeatherCardProps) {
   return (
     <Card className="h-full">

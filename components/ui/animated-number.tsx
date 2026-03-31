@@ -8,6 +8,22 @@ interface AnimatedNumberProps {
   className?: string;
 }
 
+/**
+ * Renders a number that spring-animates to its target value.
+ *
+ * **Animation model:**
+ * `useMotionValue` holds the raw value; `useSpring` drives it toward the
+ * target with physical spring parameters (stiffness 60, damping 18 —
+ * intentionally bouncy for a score "counting up" feel); `useTransform`
+ * converts the continuous float to a rounded integer string for display.
+ *
+ * On first render the spring always starts from 0, creating a satisfying
+ * count-up effect. On subsequent changes it animates from the current
+ * displayed value to the new one.
+ *
+ * @param value      Target numeric value to animate to
+ * @param className  Optional Tailwind / CSS class forwarded to the span
+ */
 export function AnimatedNumber({ value, className }: AnimatedNumberProps) {
   const motionValue = useMotionValue(value);
   const spring = useSpring(motionValue, { stiffness: 60, damping: 18 });

@@ -16,15 +16,33 @@ import { BestRideWindow } from "@/types/score";
 import { getRideScoreLabel } from "@/lib/score/calculateRideScore";
 
 interface PrimeRideCardProps {
+  /** The best consecutive ride window for the selected day. `null` when no data is available. */
   bestWindow: BestRideWindow | null;
+  /** When `true`, renders skeleton placeholders instead of live data. */
   loading?: boolean;
 }
 
+/**
+ * Extracts the HH:MM portion from an Open-Meteo ISO datetime string.
+ *
+ * @param isoTime  Datetime string in "YYYY-MM-DDTHH:MM" format
+ * @returns  Time string "HH:MM"
+ */
 function formatTime(isoTime: string): string {
   // "2026-03-17T08:00" -> "08:00"
   return isoTime.split("T")[1];
 }
 
+/**
+ * Hero card showing the overall ride score, quality label, and best time window.
+ *
+ * The score is animated via `AnimatedNumber` with a spring count-up on load.
+ * The quality label and time window use `AnimatePresence mode="wait"` so that
+ * text transitions smoothly when the data changes (e.g. different day or duration).
+ *
+ * When no `bestWindow` is available (null), placeholder dashes are shown
+ * and the score defaults to 0.
+ */
 export default function PrimeRideCard({
   bestWindow,
   loading,

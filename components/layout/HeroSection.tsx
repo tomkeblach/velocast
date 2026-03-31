@@ -27,16 +27,41 @@ import { BestRideWindow } from "@/types/score";
 import { useDelayedLoading } from "@/lib/hooks/useDelayedLoading";
 
 interface HeroSectionProps {
+  /** Geocoded location to fetch weather for. `null` renders the empty/skeleton state. */
   selectedLocation: {
     lat: number;
     lon: number;
     location: string;
   } | null;
+  /** User-selected ride duration in hours (may be fractional, e.g. 2.5). */
   rideDuration: number;
+  /**
+   * Explicitly selected day index (0 = today, 1 = tomorrow, … 6).
+   * When `null`, the component auto-detects the best day and calls `onDayDetected`.
+   */
   dayIndex: number | null;
+  /**
+   * Called once after the auto-detection logic determines which day to display.
+   * Allows the parent to sync the day-picker bubble selection.
+   */
   onDayDetected?: (i: number) => void;
 }
 
+/**
+ * Top-level summary section showing the best ride window and current conditions.
+ *
+ * **Data flow:**
+ * 1. Fetches a 7-day forecast when `selectedLocation` changes.
+ * 2. If `dayIndex` is `null`, runs `filterDaylightHours` to auto-select today
+ *    or tomorrow based on remaining daylight vs `rideDuration`, then notifies the
+ *    parent via `onDayDetected`.
+ * 3. If `dayIndex` is provided, uses `filterHoursForDayIndex` for the explicit day.
+ * 4. Computes per-hour ride scores, finds the best window, averages the
+ *    weather stats for the window, and renders `PrimeRideCard` + 4 `WeatherCards`.
+ *
+ * Skeletons are shown only after 300 ms of loading (via `useDelayedLoading`) to
+ * prevent flicker on fast re-fetches when the user changes the duration slider.
+ */
 export default function HeroSection({
   selectedLocation,
   rideDuration,
@@ -63,11 +88,11 @@ export default function HeroSection({
         );
         const hourly = mapWeatherResponse(apiResponse);
 
-        // Sonnenauf- und untergang holen
+        // Extract sunrise/sunset arrays for the 7-day period
         const sunrises = apiResponse.daily.sunrise;
         const sunsets = apiResponse.daily.sunset;
 
-        // Nur Tagesstunden (Sonnenaufgang bis Sonnenuntergang) und zukünftige Stunden
+        // Filter to daylight hours only; auto-detect today vs tomorrow if no day is selected
         let dayHours: HourlyWeather[];
         if (dayIndex === null) {
           const { hours, daylightInfo } = filterDaylightHours(
@@ -103,13 +128,13 @@ export default function HeroSection({
           }),
         }));
 
-        // Bestes Ride Window finden
+        // Find the best consecutive ride window
         const window = getBestRideWindow(hoursWithScores, rideDuration);
         setBestWindow(window);
 
-        // Stats nur für das Best Ride Window berechnen
+        // Compute weather stats only for the hours inside the best window
         if (window) {
-          // Die 3 Stunden des Best Windows aus den originalen hourly-Daten holen
+          // Fetch the original hourly data for the window hours
           const windowHours = dayHours.filter(
             (h) => h.time >= window.start && h.time < window.end,
           );
