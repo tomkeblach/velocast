@@ -101,6 +101,8 @@ export default function ForecastSection({
             precipitation: h.precipitation,
             precipitationProbability: h.precipitation_probability,
             apparentTemperature: h.apparent_temperature,
+            sunshineDuration: h.sunshine_duration,
+            shortwaveRadiation: h.shortwave_radiation,
           }),
         }));
         const bestWindow = getBestRideWindow(hoursWithScores, rideDuration);
@@ -144,7 +146,7 @@ export default function ForecastSection({
             </motion.h2>
           </AnimatePresence>
         </div>
-        <div className="flex gap-4">
+        <div className="hidden sm:flex gap-4">
           <div className="flex items-center gap-1">
             <Circle className="fill-green-600 size-3 text-green-600" />
             <span className="text-muted-foreground text-sm">Excellent</span>
@@ -169,6 +171,15 @@ export default function ForecastSection({
             <Circle className="fill-red-600 size-3 text-red-600" />
             <span className="text-muted-foreground text-sm">Bad</span>
           </div>
+        </div>
+        {/* Mobile legend: dots only */}
+        <div className="sm:hidden flex items-center gap-1.5">
+          <Circle className="fill-green-600 size-2.5 text-green-600" />
+          <Circle className="fill-green-400 size-2.5 text-green-400" />
+          <Circle className="fill-yellow-400 size-2.5 text-yellow-400" />
+          <Circle className="fill-orange-400 size-2.5 text-orange-400" />
+          <Circle className="fill-red-400 size-2.5 text-red-400" />
+          <Circle className="fill-red-600 size-2.5 text-red-600" />
         </div>
       </div>
       <Card className="py-3 h-full">
@@ -196,6 +207,8 @@ export default function ForecastSection({
                 precipitation: h.precipitation,
                 precipitationProbability: h.precipitation_probability,
                 apparentTemperature: h.apparent_temperature,
+                sunshineDuration: h.sunshine_duration,
+                shortwaveRadiation: h.shortwave_radiation,
               });
               return (
                 <motion.button
@@ -240,6 +253,8 @@ export default function ForecastSection({
                   precipitationProbability:
                     stableSelectedData.precipitation_probability,
                   apparentTemperature: stableSelectedData.apparent_temperature,
+                  sunshineDuration: stableSelectedData.sunshine_duration,
+                  shortwaveRadiation: stableSelectedData.shortwave_radiation,
                 })}
               />
             </div>

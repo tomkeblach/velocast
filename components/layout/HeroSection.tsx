@@ -98,6 +98,8 @@ export default function HeroSection({
             precipitation: h.precipitation,
             precipitationProbability: h.precipitation_probability,
             apparentTemperature: h.apparent_temperature,
+            sunshineDuration: h.sunshine_duration,
+            shortwaveRadiation: h.shortwave_radiation,
           }),
         }));
 

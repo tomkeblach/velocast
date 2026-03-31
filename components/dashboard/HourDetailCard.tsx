@@ -121,22 +121,24 @@ export default function HourDetailCard({ data }: HourDetailCardProps) {
 
   return (
     <Card className="bg-background/80 shadow-xl p-0 border-/20">
-      <div className="flex flex-row justify-between items-start md:items-center gap-8 p-6">
+      <div className="flex sm:flex-row flex-col sm:justify-between sm:items-center gap-4 sm:gap-8 p-5 sm:p-6">
         {/* Wetter-Icon & Temperatur */}
-        <div className="flex flex-col items-center gap-2 min-w-30">
-          <WeatherIcon className="drop-shadow size-14 text-primary" />
-          <div className="font-bold text-3xl">
-            {Math.round(data.temperature_2m)}°C
-          </div>
-          <div className="text-muted-foreground text-sm">
-            Feels like: {Math.round(data.apparent_temperature)}°C
-          </div>
-          <div className="font-semibold text-primary">
-            {weatherDescription(data.weather_code)}
+        <div className="flex sm:flex-col items-center sm:items-center gap-4 sm:gap-2 sm:min-w-30">
+          <WeatherIcon className="drop-shadow size-12 sm:size-14 text-primary shrink-0" />
+          <div>
+            <div className="font-bold text-3xl">
+              {Math.round(data.temperature_2m)}°C
+            </div>
+            <div className="text-muted-foreground text-sm">
+              Feels like: {Math.round(data.apparent_temperature)}°C
+            </div>
+            <div className="font-semibold text-primary sm:text-center">
+              {weatherDescription(data.weather_code)}
+            </div>
           </div>
         </div>
         {/* Werte & Score */}
-        <div className="flex-1 gap-4 grid grid-cols-2 min-w-55">
+        <div className="flex-1 gap-3 grid grid-cols-2 sm:min-w-55">
           <InfoBox
             icon={<Wind className="size-5" />}
             label="Wind"

@@ -1,72 +1,18 @@
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardContent,
-  CardFooter,
-} from "@/components/ui/card";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 
 import { Separator } from "@/components/ui/separator";
 
-import { Badge } from "@/components/ui/badge";
-import { Button } from "../ui/button";
 import {
   Wind,
   WindArrowDown,
-  Navigation,
   Droplets,
+  Thermometer,
   Sun,
-  CloudSun,
-  Cloud,
-  CloudFog,
-  CloudDrizzle,
+  Zap,
   CloudRain,
-  CloudRainWind,
-  CloudSnow,
-  CloudLightning,
-  Snowflake,
 } from "lucide-react";
 import { getRideScoreLabel } from "@/lib/score/calculateRideScore";
 import { HourlyWeather } from "@/lib/weather/mapWeatherResponse";
-
-function getWeatherIcon(code: number) {
-  if (code === 0) return Sun;
-  if (code <= 2) return CloudSun;
-  if (code === 3) return Cloud;
-  if (code === 45 || code === 48) return CloudFog;
-  if (code >= 51 && code <= 57) return CloudDrizzle;
-  if (code >= 61 && code <= 67) return CloudRain;
-  if (code >= 71 && code <= 77) return CloudSnow;
-  if (code >= 80 && code <= 82) return CloudRainWind;
-  if (code >= 85 && code <= 86) return Snowflake;
-  if (code >= 95) return CloudLightning;
-  return Cloud;
-}
-
-function InfoBox({
-  icon,
-  label,
-  value,
-  tooltip,
-}: {
-  icon: React.ReactNode;
-  label: string;
-  value: string;
-  tooltip?: string;
-}) {
-  return (
-    <div
-      className="flex items-center gap-2 bg-muted/10 px-3 py-2 rounded-lg min-w-27.5"
-      title={tooltip || label}
-    >
-      <span className="text-primary">{icon}</span>
-      <div className="flex flex-col">
-        <span className="text-muted-foreground text-xs">{label}</span>
-        <span className="font-bold text-base">{value}</span>
-      </div>
-    </div>
-  );
-}
 
 function getScoreBreakdown(data: HourlyWeather) {
   // Diese Werte müssen mit der Formel in calculateRideScore übereinstimmen
@@ -146,6 +92,70 @@ function getRecommendation(score: number) {
   return "Not recommended.";
 }
 
+// Max possible penalty per category (for bar width)
+const MAX_PENALTIES: Record<string, number> = {
+  wind: 35,
+  gusts: 20,
+  rain: 25,
+  rainProb: 10,
+  temp: 45,
+  sun: 18,
+  combo: 20,
+};
+
+function PenaltyRow({
+  icon,
+  label,
+  penalty,
+  maxPenalty,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  penalty: number;
+  maxPenalty: number;
+}) {
+  const pct = Math.min(100, (penalty / maxPenalty) * 100);
+  const isGood = penalty === 0;
+
+  return (
+    <div className="flex items-center gap-3">
+      <span
+        className={`shrink-0 ${isGood ? "text-primary" : "text-muted-foreground"}`}
+      >
+        {icon}
+      </span>
+      <div className="flex-1 min-w-0">
+        <div className="flex justify-between items-center mb-1">
+          <span className="text-sm">{label}</span>
+          <span
+            className={`text-xs font-bold tabular-nums ${
+              isGood
+                ? "text-primary"
+                : penalty >= 15
+                  ? "text-red-400"
+                  : "text-orange-400"
+            }`}
+          >
+            {isGood ? "✓" : `-${penalty}`}
+          </span>
+        </div>
+        <div className="bg-muted rounded-full h-1 overflow-hidden">
+          <div
+            className={`h-full rounded-full transition-all duration-500 ${
+              isGood
+                ? "bg-primary w-0"
+                : penalty >= 15
+                  ? "bg-red-400"
+                  : "bg-orange-400"
+            }`}
+            style={{ width: isGood ? "0%" : `${pct}%` }}
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
+
 interface HourDetailCardProps {
   data: HourlyWeather;
   score: number;
@@ -163,60 +173,66 @@ export default function ScoreBreakdownCard({
 
   return (
     <Card className="bg-background/80 border-/20">
-      <CardHeader className="">
-        <CardTitle className="font-bold text-muted-foreground uppercase">
+      <CardHeader className="pb-3">
+        <CardTitle className="font-bold text-muted-foreground text-xs uppercase tracking-widest">
           Score Breakdown
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="flex flex-col gap-2 w-full text-sm">
-          <dl className="flex justify-between items-center">
-            <dt>Wind</dt>
-            <dd className="text-muted-foreground">-{breakdown.windPenalty}</dd>
-          </dl>
-          <Separator />
-          <dl className="flex justify-between items-center">
-            <dt>Gusts</dt>
-            <dd className="text-muted-foreground">-{breakdown.gustPenalty}</dd>
-          </dl>
-          <Separator />
-          <dl className="flex justify-between items-center">
-            <dt>Rain</dt>
-            <dd className="text-muted-foreground">
-              -{breakdown.precipitationPenalty}
-            </dd>
-          </dl>
-          <Separator />
-          <dl className="flex justify-between items-center">
-            <dt>Rain prob.</dt>
-            <dd className="text-muted-foreground">
-              -{breakdown.precipitationProbabilityPenalty}
-            </dd>
-          </dl>
-          <Separator />
-          <dl className="flex justify-between items-center">
-            <dt>Temp</dt>
-            <dd className="text-muted-foreground">
-              -{breakdown.temperaturePenalty}
-            </dd>
-          </dl>
-          <Separator />
-          <dl className="flex justify-between items-center">
-            <dt>Sun</dt>
-            <dd className="text-muted-foreground">-{breakdown.sunPenalty}</dd>
-          </dl>
-          <Separator />
-          <dl className="flex justify-between items-center">
-            <dt>Combo</dt>
-            <dd className="text-muted-foreground">
-              -{breakdown.combinationPenalty}
-            </dd>
-          </dl>
-          <Separator className="bg-foreground" />
-          <dl className="flex justify-between items-center font-bold text-primary">
-            <dt>Score</dt>
-            <dd>{score}</dd>
-          </dl>
+        <div className="flex flex-col gap-3">
+          <PenaltyRow
+            icon={<Wind className="size-4" />}
+            label="Wind"
+            penalty={breakdown.windPenalty}
+            maxPenalty={MAX_PENALTIES.wind}
+          />
+          <PenaltyRow
+            icon={<WindArrowDown className="size-4" />}
+            label="Gusts"
+            penalty={breakdown.gustPenalty}
+            maxPenalty={MAX_PENALTIES.gusts}
+          />
+          <PenaltyRow
+            icon={<CloudRain className="size-4" />}
+            label="Rain"
+            penalty={breakdown.precipitationPenalty}
+            maxPenalty={MAX_PENALTIES.rain}
+          />
+          <PenaltyRow
+            icon={<Droplets className="size-4" />}
+            label="Rain prob."
+            penalty={breakdown.precipitationProbabilityPenalty}
+            maxPenalty={MAX_PENALTIES.rainProb}
+          />
+          <PenaltyRow
+            icon={<Thermometer className="size-4" />}
+            label="Temp"
+            penalty={breakdown.temperaturePenalty}
+            maxPenalty={MAX_PENALTIES.temp}
+          />
+          <PenaltyRow
+            icon={<Sun className="size-4" />}
+            label="Sun"
+            penalty={breakdown.sunPenalty}
+            maxPenalty={MAX_PENALTIES.sun}
+          />
+          <PenaltyRow
+            icon={<Zap className="size-4" />}
+            label="Combo"
+            penalty={breakdown.combinationPenalty}
+            maxPenalty={MAX_PENALTIES.combo}
+          />
+
+          <Separator className="my-1" />
+
+          <div className="flex justify-between items-center">
+            <span className="font-semibold text-muted-foreground text-sm">
+              {getRecommendation(score)}
+            </span>
+            <span className="text-shadow-score font-black text-primary text-3xl leading-none">
+              {score}
+            </span>
+          </div>
         </div>
       </CardContent>
     </Card>

@@ -163,61 +163,68 @@ export default function Home() {
           onLocationSelect={handleLocationSelect}
           selectedLocation={selectedLocation}
         />
-        <div className="flex items-center gap-4 px-1">
-          <Timer className="size-4 text-primary shrink-0" />
-          <span className="text-muted-foreground text-sm whitespace-nowrap">
-            Ride Duration
-          </span>
-          <Slider
-            value={[rideDuration]}
-            onValueChange={([v]) => setRideDuration(v)}
-            min={1}
-            max={8}
-            step={0.5}
-            className="w-40"
-          />
-          <span className="font-bold text-primary text-sm whitespace-nowrap">
-            {rideDuration}h
-          </span>
+        <div className="flex flex-col gap-3">
+          <div className="flex gap-1.5 pb-0.5 overflow-x-auto no-scrollbar">
+            {Array.from({ length: 7 }, (_, i) => {
+              const d = new Date();
+              d.setDate(d.getDate() + i);
+              const label =
+                i === 0
+                  ? "Today"
+                  : i === 1
+                    ? "Tomorrow"
+                    : d.toLocaleDateString("en", { weekday: "short" });
+              const isActive = activeDayIndex === i;
+              return (
+                <motion.button
+                  key={i}
+                  type="button"
+                  onClick={() => setActiveDayIndex(i)}
+                  className={`relative flex flex-col items-center px-3 py-2 rounded-xl text-sm transition-colors ${
+                    isActive
+                      ? "text-background font-bold"
+                      : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                  }`}
+                  whileTap={{ scale: 0.93 }}
+                >
+                  {isActive && (
+                    <motion.span
+                      layoutId="day-bubble"
+                      className="absolute inset-0 bg-primary rounded-xl"
+                      transition={{
+                        type: "spring",
+                        stiffness: 380,
+                        damping: 30,
+                      }}
+                    />
+                  )}
+                  <span className="relative text-xs">{label}</span>
+                  <span className="relative font-bold text-base leading-tight">
+                    {d.getDate()}
+                  </span>
+                </motion.button>
+              );
+            })}
+          </div>
+          <div className="flex items-center gap-3 px-1">
+            <Timer className="size-4 text-primary shrink-0" />
+            <span className="text-muted-foreground text-sm whitespace-nowrap">
+              Ride Duration
+            </span>
+            <Slider
+              value={[rideDuration]}
+              onValueChange={([v]) => setRideDuration(v)}
+              min={1}
+              max={8}
+              step={0.5}
+              className="flex-1 sm:flex-none sm:w-40"
+            />
+            <span className="w-8 font-bold text-primary text-sm text-right whitespace-nowrap">
+              {rideDuration}h
+            </span>
+          </div>
         </div>
-        <div className="flex gap-2">
-          {Array.from({ length: 7 }, (_, i) => {
-            const d = new Date();
-            d.setDate(d.getDate() + i);
-            const label =
-              i === 0
-                ? "Today"
-                : i === 1
-                  ? "Tomorrow"
-                  : d.toLocaleDateString("en", { weekday: "short" });
-            const isActive = activeDayIndex === i;
-            return (
-              <motion.button
-                key={i}
-                type="button"
-                onClick={() => setActiveDayIndex(i)}
-                className={`relative flex flex-col items-center px-3 py-2 rounded-xl text-sm transition-colors ${
-                  isActive
-                    ? "text-background font-bold"
-                    : "text-muted-foreground hover:text-foreground hover:bg-muted"
-                }`}
-                whileTap={{ scale: 0.93 }}
-              >
-                {isActive && (
-                  <motion.span
-                    layoutId="day-bubble"
-                    className="absolute inset-0 bg-primary rounded-xl"
-                    transition={{ type: "spring", stiffness: 380, damping: 30 }}
-                  />
-                )}
-                <span className="relative text-xs">{label}</span>
-                <span className="relative font-bold text-base leading-tight">
-                  {d.getDate()}
-                </span>
-              </motion.button>
-            );
-          })}
-        </div>
+
         <HeroSection
           selectedLocation={selectedLocation}
           rideDuration={rideDuration}

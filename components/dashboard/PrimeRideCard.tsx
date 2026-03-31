@@ -35,47 +35,48 @@ export default function PrimeRideCard({
   const end = bestWindow?.end ? formatTime(bestWindow.end) : "--:--";
 
   return (
-    <Card className="flex md:flex-row flex-col gap-0 p-0 md:p-6">
-      <div className="flex p-6">
-        <div className="flex flex-col justify-center items-center gap-2">
+    <Card className="flex md:flex-row flex-col gap-0 p-0 md:p-6 overflow-hidden">
+      {/* Score block */}
+      <div className="flex md:flex-col items-center gap-4 md:gap-2 bg-primary/5 md:bg-transparent p-5 md:p-6">
+        <div className="flex flex-col items-center gap-2">
           {loading ? (
-            <Skeleton className="rounded-xl w-36 h-32" />
+            <Skeleton className="rounded-xl w-28 md:w-36 h-24 md:h-32" />
           ) : (
             <AnimatedNumber
               value={score}
-              className="text-shadow-score font-black text-primary text-9xl"
+              className="text-shadow-score font-black text-primary text-8xl md:text-9xl leading-none"
             />
           )}
-          {loading ? (
-            <Skeleton className="rounded-md w-full h-9" />
-          ) : (
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={label}
-                initial={{ opacity: 0, y: 6 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -6 }}
-                transition={{ duration: 0.25 }}
-                className="w-full"
-              >
-                <Badge
-                  className="py-3 border- w-full font-bold text-primary text-xs uppercase"
-                  variant="outline"
-                >
-                  {label}
-                </Badge>
-              </motion.div>
-            </AnimatePresence>
-          )}
         </div>
+        {loading ? (
+          <Skeleton className="rounded-md w-28 h-9" />
+        ) : (
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={label}
+              initial={{ opacity: 0, y: 6 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -6 }}
+              transition={{ duration: 0.25 }}
+              className="w-full"
+            >
+              <Badge
+                className="py-3 border- w-full font-bold text-primary text-xs uppercase"
+                variant="outline"
+              >
+                {label}
+              </Badge>
+            </motion.div>
+          </AnimatePresence>
+        )}
       </div>
-      <div className="flex flex-col gap-6 py-6">
-        <CardHeader>
-          <CardTitle className="font-bold text-3xl">
+      <div className="flex flex-col flex-1 justify-center gap-4 px-5 py-5 md:py-6">
+        <CardHeader className="p-0">
+          <CardTitle className="font-bold text-2xl md:text-3xl">
             Prime Time for your Ride
           </CardTitle>
         </CardHeader>
-        <CardContent className="text-muted-foreground text-lg">
+        <CardContent className="p-0 text-muted-foreground">
           {loading ? (
             <div className="flex flex-col gap-2">
               <Skeleton className="rounded-md w-full h-5" />
