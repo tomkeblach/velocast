@@ -1,6 +1,7 @@
 "use client";
 
 import { Card, CardContent } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Clock, Circle } from "lucide-react";
 import ForecastItem from "../dashboard/ForecastItem";
 import HourDetailCard from "../dashboard/HourDetailCard";
@@ -111,7 +112,20 @@ export default function ForecastSection({
       </div>
       <Card className="py-3 h-full">
         <CardContent className="flex justify-start gap-4 px-3 overflow-x-auto no-scrollbar">
-          {loading && <span>Lade Wetterdaten…</span>}
+          {loading &&
+            Array.from({ length: 8 }).map((_, i) => (
+              <div
+                key={i}
+                className="flex flex-col items-center gap-2 px-2 py-1 min-w-16"
+              >
+                <Skeleton className="rounded-md w-10 h-4" />
+                <Skeleton className="rounded-full w-10 h-6" />
+                <Skeleton className="rounded-md w-7 h-7" />
+                <Skeleton className="rounded-md w-10 h-4" />
+                <Skeleton className="rounded-md w-8 h-4" />
+                <Skeleton className="rounded-md w-8 h-4" />
+              </div>
+            ))}
           {error && <span className="text-red-500">{error}</span>}
           {hourly &&
             hourly.map((h) => {

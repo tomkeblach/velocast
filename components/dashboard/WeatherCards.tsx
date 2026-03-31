@@ -1,4 +1,5 @@
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Thermometer, Wind, WindArrowDown, Droplets } from "lucide-react";
 
 interface WeatherCardProps {
@@ -16,8 +17,14 @@ export function TemperatureCard({ value, loading }: WeatherCardProps) {
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <span className="font-bold text-2xl">{loading ? "--" : value}</span>
-        <span className="text-muted-foreground text-sm"> °C</span>
+        {loading ? (
+          <Skeleton className="rounded-md w-16 h-7" />
+        ) : (
+          <>
+            <span className="font-bold text-2xl">{value}</span>
+            <span className="text-muted-foreground text-sm"> °C</span>
+          </>
+        )}
       </CardContent>
     </Card>
   );
@@ -33,8 +40,14 @@ export function WindCard({ value, loading }: WeatherCardProps) {
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <span className="font-bold text-2xl">{loading ? "--" : value}</span>
-        <span className="text-muted-foreground text-sm"> km/h</span>
+        {loading ? (
+          <Skeleton className="rounded-md w-16 h-7" />
+        ) : (
+          <>
+            <span className="font-bold text-2xl">{value}</span>
+            <span className="text-muted-foreground text-sm"> km/h</span>
+          </>
+        )}
       </CardContent>
     </Card>
   );
@@ -50,8 +63,14 @@ export function GustCard({ value, loading }: WeatherCardProps) {
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <span className="font-bold text-2xl">{loading ? "--" : value}</span>
-        <span className="text-muted-foreground text-sm"> km/h</span>
+        {loading ? (
+          <Skeleton className="rounded-md w-16 h-7" />
+        ) : (
+          <>
+            <span className="font-bold text-2xl">{value}</span>
+            <span className="text-muted-foreground text-sm"> km/h</span>
+          </>
+        )}
       </CardContent>
     </Card>
   );
@@ -67,8 +86,14 @@ export function RainCard({ value, loading }: WeatherCardProps) {
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <span className="font-bold text-2xl">{loading ? "--" : value}</span>
-        <span className="text-muted-foreground text-sm"> %</span>
+        {loading ? (
+          <Skeleton className="rounded-md w-16 h-7" />
+        ) : (
+          <>
+            <span className="font-bold text-2xl">{value}</span>
+            <span className="text-muted-foreground text-sm"> %</span>
+          </>
+        )}
       </CardContent>
     </Card>
   );

@@ -8,6 +8,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Clock } from "lucide-react";
 import { BestRideWindow } from "@/types/score";
 import { getRideScoreLabel } from "@/lib/score/calculateRideScore";
@@ -36,20 +37,22 @@ export default function PrimeRideCard({
       <div className="flex p-6">
         <div className="flex flex-col justify-center items-center gap-2">
           {loading ? (
-            <div className="text-shadow-score font-black text-primary text-9xl">
-              --
-            </div>
+            <Skeleton className="rounded-xl w-36 h-32" />
           ) : (
             <div className="text-shadow-score font-black text-primary text-9xl">
               {score}
             </div>
           )}
-          <Badge
-            className="py-3 border- w-full font-bold text-primary text-xs uppercase"
-            variant="outline"
-          >
-            {loading ? "Loading..." : label}
-          </Badge>
+          {loading ? (
+            <Skeleton className="rounded-md w-full h-9" />
+          ) : (
+            <Badge
+              className="py-3 border- w-full font-bold text-primary text-xs uppercase"
+              variant="outline"
+            >
+              {label}
+            </Badge>
+          )}
         </div>
       </div>
       <div className="flex flex-col gap-6 py-6">
@@ -60,7 +63,10 @@ export default function PrimeRideCard({
         </CardHeader>
         <CardContent className="text-muted-foreground text-lg">
           {loading ? (
-            <p>Lade Wetterdaten...</p>
+            <div className="flex flex-col gap-2">
+              <Skeleton className="rounded-md w-full h-5" />
+              <Skeleton className="rounded-md w-4/5 h-5" />
+            </div>
           ) : (
             <p>
               {score >= 85
@@ -78,12 +84,18 @@ export default function PrimeRideCard({
             <Button className="hover:bg-primary mr-2 size-12">
               <Clock className="size-6 text-card" />
             </Button>
-            <div className="">
+            <div className="flex-1">
               <AlertTitle className="font-bold text-primary text-sm">
                 Best Ride Window
               </AlertTitle>
               <AlertDescription className="font-bold text-foreground text-xl">
-                {start} — {end}
+                {loading ? (
+                  <Skeleton className="mt-1 rounded-md w-36 h-6" />
+                ) : (
+                  <>
+                    {start} — {end}
+                  </>
+                )}
               </AlertDescription>
             </div>
           </Alert>
