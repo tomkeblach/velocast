@@ -8,13 +8,19 @@ import {
   RainCard,
 } from "@/components/dashboard/WeatherCards";
 import { fetchWeather } from "@/lib/weather/fetchWeather";
-import { mapWeatherResponse } from "@/lib/weather/mapWeatherResponse";
+import {
+  mapWeatherResponse,
+  HourlyWeather,
+} from "@/lib/weather/mapWeatherResponse";
 import {
   calculateRideScore,
   getRideScoreLabel,
 } from "@/lib/score/calculateRideScore";
 import { getBestRideWindow } from "@/lib/score/getBestRideWindow";
-import { filterDaylightHours } from "@/lib/utils/filterDaylightHours";
+import {
+  filterDaylightHours,
+  filterHoursForDayIndex,
+} from "@/lib/utils/filterDaylightHours";
 import { useEffect, useState } from "react";
 import { BestRideWindow } from "@/types/score";
 
@@ -24,9 +30,17 @@ interface HeroSectionProps {
     lon: number;
     location: string;
   } | null;
+  rideDuration: number;
+  dayIndex: number | null;
+  onDayDetected?: (i: number) => void;
 }
 
-export default function HeroSection({ selectedLocation }: HeroSectionProps) {
+export default function HeroSection({
+  selectedLocation,
+  rideDuration,
+  dayIndex,
+  onDayDetected,
+}: HeroSectionProps) {
   const [bestWindow, setBestWindow] = useState<BestRideWindow | null>(null);
   const [stats, setStats] = useState({
     avgTemp: 0,
@@ -47,19 +61,30 @@ export default function HeroSection({ selectedLocation }: HeroSectionProps) {
         const hourly = mapWeatherResponse(apiResponse);
 
         // Sonnenauf- und untergang holen
-        const sunriseToday = apiResponse.daily.sunrise[0];
-        const sunsetToday = apiResponse.daily.sunset[0];
-        const sunriseTomorrow = apiResponse.daily.sunrise[1];
-        const sunsetTomorrow = apiResponse.daily.sunset[1];
+        const sunrises = apiResponse.daily.sunrise;
+        const sunsets = apiResponse.daily.sunset;
 
         // Nur Tagesstunden (Sonnenaufgang bis Sonnenuntergang) und zukünftige Stunden
-        const { hours: dayHours } = filterDaylightHours(
-          hourly,
-          sunriseToday,
-          sunsetToday,
-          sunriseTomorrow,
-          sunsetTomorrow,
-        );
+        let dayHours: HourlyWeather[];
+        if (dayIndex === null) {
+          const { hours, daylightInfo } = filterDaylightHours(
+            hourly,
+            sunrises[0],
+            sunsets[0],
+            sunrises[1],
+            sunsets[1],
+            rideDuration,
+          );
+          dayHours = hours;
+          onDayDetected?.(daylightInfo.useTomorrow ? 1 : 0);
+        } else {
+          dayHours = filterHoursForDayIndex(
+            hourly,
+            sunrises,
+            sunsets,
+            dayIndex,
+          );
+        }
 
         // Scores berechnen
         const hoursWithScores = dayHours.map((h) => ({
@@ -74,14 +99,14 @@ export default function HeroSection({ selectedLocation }: HeroSectionProps) {
         }));
 
         // Bestes Ride Window finden
-        const window = getBestRideWindow(hoursWithScores);
+        const window = getBestRideWindow(hoursWithScores, rideDuration);
         setBestWindow(window);
 
         // Stats nur für das Best Ride Window berechnen
         if (window) {
           // Die 3 Stunden des Best Windows aus den originalen hourly-Daten holen
           const windowHours = dayHours.filter(
-            (h) => h.time >= window.start && h.time <= window.end,
+            (h) => h.time >= window.start && h.time < window.end,
           );
 
           const avgTemp =
@@ -109,7 +134,7 @@ export default function HeroSection({ selectedLocation }: HeroSectionProps) {
       }
     }
     load();
-  }, [selectedLocation]);
+  }, [selectedLocation, rideDuration, dayIndex]);
 
   return (
     <section className="gap-4 grid xl:grid-cols-12">

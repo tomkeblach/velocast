@@ -12,8 +12,20 @@ import {
   HourlyWeather,
 } from "@/lib/weather/mapWeatherResponse";
 import { calculateRideScore } from "@/lib/score/calculateRideScore";
-import { filterDaylightHours } from "@/lib/utils/filterDaylightHours";
+import { getBestRideWindow } from "@/lib/score/getBestRideWindow";
+import {
+  filterDaylightHours,
+  filterHoursForDayIndex,
+} from "@/lib/utils/filterDaylightHours";
 import { useEffect, useState } from "react";
+
+function getDayTitle(dayIndex: number): string {
+  if (dayIndex === 0) return "Today's Ride Forecast";
+  if (dayIndex === 1) return "Tomorrow's Ride Forecast";
+  const d = new Date();
+  d.setDate(d.getDate() + dayIndex);
+  return `${d.toLocaleDateString("en", { weekday: "long" })}'s Ride Forecast`;
+}
 
 interface ForecastSectionProps {
   selectedLocation: {
@@ -21,10 +33,16 @@ interface ForecastSectionProps {
     lon: number;
     location: string;
   } | null;
+  rideDuration: number;
+  dayIndex: number | null;
+  onDayDetected?: (i: number) => void;
 }
 
 export default function ForecastSection({
   selectedLocation,
+  rideDuration,
+  dayIndex,
+  onDayDetected,
 }: ForecastSectionProps) {
   const [hourly, setHourly] = useState<HourlyWeather[] | null>(null);
   const [displayTitle, setDisplayTitle] = useState("Today's Ride Forecast");
@@ -44,25 +62,49 @@ export default function ForecastSection({
         const allHourly = mapWeatherResponse(apiResponse);
 
         // Sonnenauf- und untergang holen
-        const sunriseToday = apiResponse.daily.sunrise[0];
-        const sunsetToday = apiResponse.daily.sunset[0];
-        const sunriseTomorrow = apiResponse.daily.sunrise[1];
-        const sunsetTomorrow = apiResponse.daily.sunset[1];
+        const sunrises = apiResponse.daily.sunrise;
+        const sunsets = apiResponse.daily.sunset;
 
         // Nur Tagesstunden (Sonnenaufgang bis Sonnenuntergang) und zukünftige Stunden
-        const { hours: filteredHours, daylightInfo } = filterDaylightHours(
-          allHourly,
-          sunriseToday,
-          sunsetToday,
-          sunriseTomorrow,
-          sunsetTomorrow,
-        );
+        let filteredHours: HourlyWeather[];
+        if (dayIndex === null) {
+          const { hours, daylightInfo } = filterDaylightHours(
+            allHourly,
+            sunrises[0],
+            sunsets[0],
+            sunrises[1],
+            sunsets[1],
+            rideDuration,
+          );
+          filteredHours = hours;
+          const resolvedIndex = daylightInfo.useTomorrow ? 1 : 0;
+          onDayDetected?.(resolvedIndex);
+          setDisplayTitle(getDayTitle(resolvedIndex));
+        } else {
+          filteredHours = filterHoursForDayIndex(
+            allHourly,
+            sunrises,
+            sunsets,
+            dayIndex,
+          );
+          setDisplayTitle(getDayTitle(dayIndex));
+        }
+
+        const hoursWithScores = filteredHours.map((h) => ({
+          time: h.time,
+          score: calculateRideScore({
+            windSpeed: h.wind_speed_10m,
+            windGusts: h.wind_gusts_10m,
+            precipitation: h.precipitation,
+            precipitationProbability: h.precipitation_probability,
+            apparentTemperature: h.apparent_temperature,
+          }),
+        }));
+        const bestWindow = getBestRideWindow(hoursWithScores, rideDuration);
 
         setHourly(filteredHours);
-        setDisplayTitle(
-          daylightInfo.useTomorrow
-            ? "Tomorrow's Ride Forecast"
-            : "Today's Ride Forecast",
+        setSelected(
+          bestWindow ? bestWindow.start : (filteredHours[0]?.time ?? null),
         );
       } catch (e) {
         setError("Fehler beim Laden der Wetterdaten");
@@ -71,7 +113,7 @@ export default function ForecastSection({
       }
     }
     load();
-  }, [selectedLocation?.lat, selectedLocation?.lon]);
+  }, [selectedLocation?.lat, selectedLocation?.lon, rideDuration, dayIndex]);
 
   const selectedData =
     hourly && selected ? hourly.find((h) => h.time === selected) : null;

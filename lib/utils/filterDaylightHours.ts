@@ -11,6 +11,8 @@ export interface DaylightInfo {
  * Filtert Stunden zwischen Sonnenaufgang und Sonnenuntergang
  * und zeigt nur zukünftige Stunden an.
  * Nach Sonnenuntergang wird der nächste Tag verwendet.
+ * Wenn weniger als rideDurationHours Stunden bis Sonnenuntergang verbleiben,
+ * wird ebenfalls auf den nächsten Tag gewechselt.
  */
 export function filterDaylightHours(
   hourlyData: HourlyWeather[],
@@ -18,6 +20,7 @@ export function filterDaylightHours(
   sunsetToday: string,
   sunriseTomorrow?: string,
   sunsetTomorrow?: string,
+  rideDurationHours: number = 3,
 ): { hours: HourlyWeather[]; daylightInfo: DaylightInfo } {
   const now = new Date();
 
@@ -28,8 +31,18 @@ export function filterDaylightHours(
   // Prüfen, ob es bereits nach Sonnenuntergang ist
   const isAfterSunset = now > sunsetTime;
 
-  // Nach Sonnenuntergang: morgigen Tag verwenden
-  if (isAfterSunset && sunriseTomorrow && sunsetTomorrow) {
+  // Prüfen, ob noch genug Tageslicht für den Ride übrig ist
+  const effectiveStart = now > sunriseTime ? now : sunriseTime;
+  const remainingDaylightHours =
+    (sunsetTime.getTime() - effectiveStart.getTime()) / (1000 * 60 * 60);
+  const notEnoughTimeToday = remainingDaylightHours < rideDurationHours;
+
+  // Nach Sonnenuntergang oder zu wenig Zeit heute: morgigen Tag verwenden
+  if (
+    (isAfterSunset || notEnoughTimeToday) &&
+    sunriseTomorrow &&
+    sunsetTomorrow
+  ) {
     const tomorrowSunrise = new Date(sunriseTomorrow);
     const tomorrowSunset = new Date(sunsetTomorrow);
 
@@ -64,4 +77,31 @@ export function filterDaylightHours(
       useTomorrow: false,
     },
   };
+}
+
+/**
+ * Filtert Stunden für einen expliziten Tag-Index (0 = heute, 1 = morgen, usw.)
+ * Für Tag 0 werden vergangene Stunden ausgeschlossen.
+ */
+export function filterHoursForDayIndex(
+  hourlyData: HourlyWeather[],
+  sunrises: string[],
+  sunsets: string[],
+  dayIndex: number,
+): HourlyWeather[] {
+  const sunrise = sunrises[dayIndex];
+  const sunset = sunsets[dayIndex];
+  if (!sunrise || !sunset) return [];
+
+  const sunriseTime = new Date(sunrise);
+  const sunsetTime = new Date(sunset);
+  const now = new Date();
+
+  return hourlyData.filter((h) => {
+    const t = new Date(h.time);
+    if (dayIndex === 0) {
+      return t >= now && t >= sunriseTime && t <= sunsetTime;
+    }
+    return t >= sunriseTime && t <= sunsetTime;
+  });
 }

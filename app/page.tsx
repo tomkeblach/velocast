@@ -1,8 +1,10 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Topbar from "@/components/layout/Topbar";
 import HeroSection from "@/components/layout/HeroSection";
 import ForecastSection from "@/components/layout/ForecastSection";
+import { Slider } from "@/components/ui/slider";
+import { Timer } from "lucide-react";
 
 // Zeitzone zu Stadt Mapping
 function getCityFromTimezone(timezone: string): string {
@@ -55,6 +57,17 @@ export default function Home() {
     location: any;
   } | null>(null);
   const [isLoadingDefault, setIsLoadingDefault] = useState(true);
+  const [rideDuration, setRideDuration] = useState(3);
+  const [activeDayIndex, setActiveDayIndex] = useState<number | null>(null);
+  const prevLocationRef = useRef(selectedLocation);
+
+  // Reset day auto-detection only when location changes (not on rideDuration change)
+  useEffect(() => {
+    if (prevLocationRef.current !== selectedLocation) {
+      prevLocationRef.current = selectedLocation;
+      setActiveDayIndex(null);
+    }
+  }, [selectedLocation, rideDuration]);
 
   useEffect(() => {
     async function setDefaultLocation() {
@@ -138,6 +151,10 @@ export default function Home() {
     setSelectedLocation({ lat, lon, location });
   };
 
+  const handleDayDetected = (i: number) => {
+    setActiveDayIndex((prev) => (prev === null ? i : prev));
+  };
+
   return (
     <main className="bg-background min-h-screen">
       <div className="flex flex-col gap-6 mx-auto px-4 sm:px-6 xl:px-8 py-6 w-full max-w-7xl">
@@ -145,8 +162,65 @@ export default function Home() {
           onLocationSelect={handleLocationSelect}
           selectedLocation={selectedLocation}
         />
-        <HeroSection selectedLocation={selectedLocation} />
-        <ForecastSection selectedLocation={selectedLocation} />
+        <div className="flex items-center gap-4 px-1">
+          <Timer className="size-4 text-primary shrink-0" />
+          <span className="text-muted-foreground text-sm whitespace-nowrap">
+            Ride Duration
+          </span>
+          <Slider
+            value={[rideDuration]}
+            onValueChange={([v]) => setRideDuration(v)}
+            min={1}
+            max={8}
+            step={0.5}
+            className="w-40"
+          />
+          <span className="font-bold text-primary text-sm whitespace-nowrap">
+            {rideDuration}h
+          </span>
+        </div>
+        <div className="flex gap-2">
+          {Array.from({ length: 7 }, (_, i) => {
+            const d = new Date();
+            d.setDate(d.getDate() + i);
+            const label =
+              i === 0
+                ? "Today"
+                : i === 1
+                  ? "Tomorrow"
+                  : d.toLocaleDateString("en", { weekday: "short" });
+            const isActive = activeDayIndex === i;
+            return (
+              <button
+                key={i}
+                type="button"
+                onClick={() => setActiveDayIndex(i)}
+                className={`flex flex-col items-center px-3 py-2 rounded-xl text-sm transition-colors ${
+                  isActive
+                    ? "bg-primary text-background font-bold"
+                    : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                }`}
+              >
+                <span className="text-xs">{label}</span>
+                <span className="font-bold text-base leading-tight">
+                  {d.getDate()}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+        <HeroSection
+          selectedLocation={selectedLocation}
+          rideDuration={rideDuration}
+          dayIndex={activeDayIndex}
+          onDayDetected={handleDayDetected}
+        />
+        <ForecastSection
+          selectedLocation={selectedLocation}
+          rideDuration={rideDuration}
+          dayIndex={activeDayIndex}
+          onDayDetected={handleDayDetected}
+        />
       </div>
     </main>
   );

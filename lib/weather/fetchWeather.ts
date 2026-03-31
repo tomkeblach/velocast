@@ -21,7 +21,7 @@ export async function fetchWeather(
     ].join(","),
     daily: ["sunrise", "sunset"].join(","),
     timezone: "auto",
-    forecast_days: "2",
+    forecast_days: "7",
   });
 
   const url = `https://api.open-meteo.com/v1/forecast?${params.toString()}`;
