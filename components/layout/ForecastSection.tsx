@@ -17,7 +17,9 @@ import {
   filterDaylightHours,
   filterHoursForDayIndex,
 } from "@/lib/utils/filterDaylightHours";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { useDelayedLoading } from "@/lib/hooks/useDelayedLoading";
 
 function getDayTitle(dayIndex: number): string {
   if (dayIndex === 0) return "Today's Ride Forecast";
@@ -47,6 +49,7 @@ export default function ForecastSection({
   const [hourly, setHourly] = useState<HourlyWeather[] | null>(null);
   const [displayTitle, setDisplayTitle] = useState("Today's Ride Forecast");
   const [loading, setLoading] = useState(true);
+  const showSkeleton = useDelayedLoading(loading) && hourly === null;
   const [error, setError] = useState<string | null>(null);
   const [selected, setSelected] = useState<string | null>(null); // selected hour time
 
@@ -118,12 +121,28 @@ export default function ForecastSection({
   const selectedData =
     hourly && selected ? hourly.find((h) => h.time === selected) : null;
 
+  // Keep the last valid selectedData so the detail panel never collapses mid-transition
+  const lastSelectedDataRef = useRef(selectedData);
+  if (selectedData) lastSelectedDataRef.current = selectedData;
+  const stableSelectedData = selectedData ?? lastSelectedDataRef.current;
+
   return (
     <section className="">
       <div className="flex justify-between items-center mb-4">
         <div className="flex items-center gap-2">
           <Clock className="size-5 text-primary" />
-          <h2 className="font-bold text-foreground text-xl">{displayTitle}</h2>
+          <AnimatePresence mode="wait">
+            <motion.h2
+              key={displayTitle}
+              initial={{ opacity: 0, x: -8 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: 8 }}
+              transition={{ duration: 0.2 }}
+              className="font-bold text-foreground text-xl"
+            >
+              {displayTitle}
+            </motion.h2>
+          </AnimatePresence>
         </div>
         <div className="flex gap-4">
           <div className="flex items-center gap-1">
@@ -154,23 +173,23 @@ export default function ForecastSection({
       </div>
       <Card className="py-3 h-full">
         <CardContent className="flex justify-start gap-4 px-3 overflow-x-auto no-scrollbar">
-          {loading &&
+          {showSkeleton &&
             Array.from({ length: 8 }).map((_, i) => (
               <div
                 key={i}
-                className="flex flex-col items-center gap-2 px-2 py-1 min-w-16"
+                className="flex flex-col items-center space-y-2 p-3 border-2 border-transparent rounded-lg"
               >
                 <Skeleton className="rounded-md w-10 h-4" />
                 <Skeleton className="rounded-full w-10 h-6" />
-                <Skeleton className="rounded-md w-7 h-7" />
+                <Skeleton className="rounded-md w-6 h-6" />
                 <Skeleton className="rounded-md w-10 h-4" />
-                <Skeleton className="rounded-md w-8 h-4" />
-                <Skeleton className="rounded-md w-8 h-4" />
+                <Skeleton className="rounded-md w-16 h-4" />
+                <Skeleton className="rounded-md w-12 h-4" />
               </div>
             ))}
           {error && <span className="text-red-500">{error}</span>}
           {hourly &&
-            hourly.map((h) => {
+            hourly.map((h, i) => {
               const score = calculateRideScore({
                 windSpeed: h.wind_speed_10m,
                 windGusts: h.wind_gusts_10m,
@@ -179,44 +198,54 @@ export default function ForecastSection({
                 apparentTemperature: h.apparent_temperature,
               });
               return (
-                <button
+                <motion.button
                   key={h.time}
                   type="button"
                   className="bg-transparent p-0 border-none outline-none"
                   onClick={() => setSelected(h.time)}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.2, delay: i * 0.03 }}
                 >
                   <ForecastItem
                     data={h}
                     score={score}
                     active={selected === h.time}
                   />
-                </button>
+                </motion.button>
               );
             })}
         </CardContent>
       </Card>
-      <div className="gap-4 grid md:grid-cols-12 mt-6">
-        {selectedData && (
-          <>
+      <AnimatePresence mode="wait">
+        {stableSelectedData && (
+          <motion.div
+            key={stableSelectedData.time}
+            className="gap-4 grid md:grid-cols-12 mt-6"
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.25 }}
+          >
             <div className="md:col-span-8">
-              <HourDetailCard data={selectedData} />
+              <HourDetailCard data={stableSelectedData} />
             </div>
             <div className="md:col-span-4">
               <ScoreBreakdownCard
-                data={selectedData}
+                data={stableSelectedData}
                 score={calculateRideScore({
-                  windSpeed: selectedData.wind_speed_10m,
-                  windGusts: selectedData.wind_gusts_10m,
-                  precipitation: selectedData.precipitation,
+                  windSpeed: stableSelectedData.wind_speed_10m,
+                  windGusts: stableSelectedData.wind_gusts_10m,
+                  precipitation: stableSelectedData.precipitation,
                   precipitationProbability:
-                    selectedData.precipitation_probability,
-                  apparentTemperature: selectedData.apparent_temperature,
+                    stableSelectedData.precipitation_probability,
+                  apparentTemperature: stableSelectedData.apparent_temperature,
                 })}
               />
             </div>
-          </>
+          </motion.div>
         )}
-      </div>
+      </AnimatePresence>
     </section>
   );
 }

@@ -9,6 +9,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Skeleton } from "@/components/ui/skeleton";
+import { AnimatedNumber } from "@/components/ui/animated-number";
+import { motion, AnimatePresence } from "framer-motion";
 import { Clock } from "lucide-react";
 import { BestRideWindow } from "@/types/score";
 import { getRideScoreLabel } from "@/lib/score/calculateRideScore";
@@ -39,19 +41,31 @@ export default function PrimeRideCard({
           {loading ? (
             <Skeleton className="rounded-xl w-36 h-32" />
           ) : (
-            <div className="text-shadow-score font-black text-primary text-9xl">
-              {score}
-            </div>
+            <AnimatedNumber
+              value={score}
+              className="text-shadow-score font-black text-primary text-9xl"
+            />
           )}
           {loading ? (
             <Skeleton className="rounded-md w-full h-9" />
           ) : (
-            <Badge
-              className="py-3 border- w-full font-bold text-primary text-xs uppercase"
-              variant="outline"
-            >
-              {label}
-            </Badge>
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={label}
+                initial={{ opacity: 0, y: 6 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -6 }}
+                transition={{ duration: 0.25 }}
+                className="w-full"
+              >
+                <Badge
+                  className="py-3 border- w-full font-bold text-primary text-xs uppercase"
+                  variant="outline"
+                >
+                  {label}
+                </Badge>
+              </motion.div>
+            </AnimatePresence>
           )}
         </div>
       </div>
@@ -68,15 +82,23 @@ export default function PrimeRideCard({
               <Skeleton className="rounded-md w-4/5 h-5" />
             </div>
           ) : (
-            <p>
-              {score >= 85
-                ? "Excellent conditions with low wind and optimal temperature. Perfect for tackling long rides."
-                : score >= 70
-                  ? "Very good conditions. Great time for a quality ride."
-                  : score >= 55
-                    ? "Good riding conditions. Some minor factors to consider."
-                    : "Fair conditions. Check wind and weather details before heading out."}
-            </p>
+            <AnimatePresence mode="wait">
+              <motion.p
+                key={score}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.3 }}
+              >
+                {score >= 85
+                  ? "Excellent conditions with low wind and optimal temperature. Perfect for tackling long rides."
+                  : score >= 70
+                    ? "Very good conditions. Great time for a quality ride."
+                    : score >= 55
+                      ? "Good riding conditions. Some minor factors to consider."
+                      : "Fair conditions. Check wind and weather details before heading out."}
+              </motion.p>
+            </AnimatePresence>
           )}
         </CardContent>
         <CardFooter>
@@ -92,9 +114,17 @@ export default function PrimeRideCard({
                 {loading ? (
                   <Skeleton className="mt-1 rounded-md w-36 h-6" />
                 ) : (
-                  <>
-                    {start} — {end}
-                  </>
+                  <AnimatePresence mode="wait">
+                    <motion.span
+                      key={`${start}-${end}`}
+                      initial={{ opacity: 0, y: 4 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -4 }}
+                      transition={{ duration: 0.25 }}
+                    >
+                      {start} — {end}
+                    </motion.span>
+                  </AnimatePresence>
                 )}
               </AlertDescription>
             </div>

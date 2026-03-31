@@ -22,7 +22,9 @@ import {
   filterHoursForDayIndex,
 } from "@/lib/utils/filterDaylightHours";
 import { useEffect, useState } from "react";
+import { motion } from "framer-motion";
 import { BestRideWindow } from "@/types/score";
+import { useDelayedLoading } from "@/lib/hooks/useDelayedLoading";
 
 interface HeroSectionProps {
   selectedLocation: {
@@ -49,6 +51,7 @@ export default function HeroSection({
     maxPrecipProb: 0,
   });
   const [loading, setLoading] = useState(true);
+  const showSkeleton = useDelayedLoading(loading);
 
   useEffect(() => {
     async function load() {
@@ -137,19 +140,24 @@ export default function HeroSection({
   }, [selectedLocation, rideDuration, dayIndex]);
 
   return (
-    <section className="gap-4 grid xl:grid-cols-12">
+    <motion.section
+      className="gap-4 grid xl:grid-cols-12"
+      initial={{ opacity: 0, y: 16 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4, ease: "easeOut" }}
+    >
       <div className="xl:col-span-8">
-        <PrimeRideCard bestWindow={bestWindow} loading={loading} />
+        <PrimeRideCard bestWindow={bestWindow} loading={showSkeleton} />
       </div>
 
       <div className="xl:col-span-4">
         <div className="gap-4 grid grid-cols-2 h-full">
-          <TemperatureCard value={stats.avgTemp} loading={loading} />
-          <WindCard value={stats.avgWind} loading={loading} />
-          <GustCard value={stats.maxGust} loading={loading} />
-          <RainCard value={stats.maxPrecipProb} loading={loading} />
+          <TemperatureCard value={stats.avgTemp} loading={showSkeleton} />
+          <WindCard value={stats.avgWind} loading={showSkeleton} />
+          <GustCard value={stats.maxGust} loading={showSkeleton} />
+          <RainCard value={stats.maxPrecipProb} loading={showSkeleton} />
         </div>
       </div>
-    </section>
+    </motion.section>
   );
 }

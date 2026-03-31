@@ -5,6 +5,7 @@ import HeroSection from "@/components/layout/HeroSection";
 import ForecastSection from "@/components/layout/ForecastSection";
 import { Slider } from "@/components/ui/slider";
 import { Timer } from "lucide-react";
+import { motion } from "framer-motion";
 
 // Zeitzone zu Stadt Mapping
 function getCityFromTimezone(timezone: string): string {
@@ -191,21 +192,29 @@ export default function Home() {
                   : d.toLocaleDateString("en", { weekday: "short" });
             const isActive = activeDayIndex === i;
             return (
-              <button
+              <motion.button
                 key={i}
                 type="button"
                 onClick={() => setActiveDayIndex(i)}
-                className={`flex flex-col items-center px-3 py-2 rounded-xl text-sm transition-colors ${
+                className={`relative flex flex-col items-center px-3 py-2 rounded-xl text-sm transition-colors ${
                   isActive
-                    ? "bg-primary text-background font-bold"
+                    ? "text-background font-bold"
                     : "text-muted-foreground hover:text-foreground hover:bg-muted"
                 }`}
+                whileTap={{ scale: 0.93 }}
               >
-                <span className="text-xs">{label}</span>
-                <span className="font-bold text-base leading-tight">
+                {isActive && (
+                  <motion.span
+                    layoutId="day-bubble"
+                    className="absolute inset-0 bg-primary rounded-xl"
+                    transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                  />
+                )}
+                <span className="relative text-xs">{label}</span>
+                <span className="relative font-bold text-base leading-tight">
                   {d.getDate()}
                 </span>
-              </button>
+              </motion.button>
             );
           })}
         </div>

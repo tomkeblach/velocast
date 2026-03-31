@@ -1,5 +1,6 @@
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { AnimatedNumber } from "@/components/ui/animated-number";
 import { Thermometer, Wind, WindArrowDown, Droplets } from "lucide-react";
 
 interface WeatherCardProps {
@@ -21,7 +22,7 @@ export function TemperatureCard({ value, loading }: WeatherCardProps) {
           <Skeleton className="rounded-md w-16 h-7" />
         ) : (
           <>
-            <span className="font-bold text-2xl">{value}</span>
+            <AnimatedNumber value={value} className="font-bold text-2xl" />
             <span className="text-muted-foreground text-sm"> °C</span>
           </>
         )}
@@ -44,7 +45,7 @@ export function WindCard({ value, loading }: WeatherCardProps) {
           <Skeleton className="rounded-md w-16 h-7" />
         ) : (
           <>
-            <span className="font-bold text-2xl">{value}</span>
+            <AnimatedNumber value={value} className="font-bold text-2xl" />
             <span className="text-muted-foreground text-sm"> km/h</span>
           </>
         )}
@@ -67,7 +68,7 @@ export function GustCard({ value, loading }: WeatherCardProps) {
           <Skeleton className="rounded-md w-16 h-7" />
         ) : (
           <>
-            <span className="font-bold text-2xl">{value}</span>
+            <AnimatedNumber value={value} className="font-bold text-2xl" />
             <span className="text-muted-foreground text-sm"> km/h</span>
           </>
         )}
@@ -90,7 +91,7 @@ export function RainCard({ value, loading }: WeatherCardProps) {
           <Skeleton className="rounded-md w-16 h-7" />
         ) : (
           <>
-            <span className="font-bold text-2xl">{value}</span>
+            <AnimatedNumber value={value} className="font-bold text-2xl" />
             <span className="text-muted-foreground text-sm"> %</span>
           </>
         )}
