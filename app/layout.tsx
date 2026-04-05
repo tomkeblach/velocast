@@ -61,6 +61,9 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased dark`}
       >
         {children}
+        <footer className="py-6 text-muted-foreground text-xs text-center">
+          © {new Date().getFullYear()} Tomke Blach. All rights reserved.
+        </footer>
         <Analytics />
       </body>
     </html>
