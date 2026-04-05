@@ -120,7 +120,7 @@ export default function PrimeRideCard({
             </AnimatePresence>
           )}
         </CardContent>
-        <CardFooter>
+        <CardFooter className="p-0">
           <Alert className="flex items-center bg-primary/10 border-/20">
             <Button className="hover:bg-primary mr-2 size-12">
               <Clock className="size-6 text-card" />
