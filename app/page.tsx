@@ -163,8 +163,8 @@ export default function Home() {
           onLocationSelect={handleLocationSelect}
           selectedLocation={selectedLocation}
         />
-        <div className="flex md:flex-row flex-col flex-wrap sm:justify-between gap-3">
-          <div className="flex gap-1.5 pb-0.5 overflow-x-auto no-scrollbar">
+        <div className="flex md:flex-row flex-col flex-wrap sm:justify-between gap-3 min-w-0">
+          <div className="flex gap-1.5 pb-0.5 w-full md:w-auto overflow-x-auto no-scrollbar">
             {Array.from({ length: 7 }, (_, i) => {
               const d = new Date();
               d.setDate(d.getDate() + i);
