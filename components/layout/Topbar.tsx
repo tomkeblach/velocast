@@ -45,12 +45,18 @@ export default function Topbar({
         className="flex sm:flex-row flex-col sm:justify-between sm:items-center gap-3 py-4"
       >
         <div className="flex justify-between sm:justify-start items-center">
-          <a href="#" className="flex items-center -m-1.5 p-1.5">
-            <Navigation className="bg-primary p-1 rounded-lg w-auto h-8 text-background" />
-            <span className="ml-2 font-bold text-primary text-xl">
-              VeloCast
+          <div className="flex flex-col">
+            <a href="#" className="flex items-center -m-1.5 p-1.5">
+              <Navigation className="bg-primary p-1 rounded-lg w-auto h-8 text-background" />
+
+              <span className="ml-2 font-bold text-primary text-xl">
+                VeloCast
+              </span>
+            </a>
+            <span className="text-muted-foreground text-sm">
+              Plan your cycle ride
             </span>
-          </a>
+          </div>
           <div className="sm:hidden">
             <LocationSearch onLocationSelect={onLocationSelect} />
           </div>
