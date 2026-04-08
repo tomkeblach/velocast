@@ -3,6 +3,7 @@ import { Geist, Geist_Mono, Inter } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 import { cn } from "@/lib/utils";
+import Plausible from "@/components/plausible";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 
@@ -65,6 +66,7 @@ export default function RootLayout({
           © {new Date().getFullYear()} Tomke Blach. All rights reserved.
         </footer>
         <Analytics />
+        <Plausible />
       </body>
     </html>
   );
